@@ -1,3 +1,4 @@
+//Follows tape using PID control
 void TapeFollow()
 {
   LCD.print("LS:");
@@ -74,6 +75,7 @@ void TapeFollow()
   LCD.print(rightSpeed);
 }
 
+// PID control step
 void update()
 {
   unsigned long now = millis();
