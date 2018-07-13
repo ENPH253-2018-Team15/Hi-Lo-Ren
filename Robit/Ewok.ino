@@ -9,6 +9,8 @@ void EwokDetect()
 	while (!Wire.available())
 	{
 		delay(1);
+
+		
 	}
 	for (int i = 0; i < 3; i++)
 	{
@@ -25,3 +27,7 @@ void EwokRetrieve()
 	// Align robot to Ewok
 	// Pick up Ewok
 }
+
+
+
+

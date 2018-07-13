@@ -1,5 +1,4 @@
 #include <Wire_slave.h>
-#include <Servo.h>
 
 const byte ECHO_CLAW = PC14;
 const byte TRIG_CLAW = PC13;
@@ -7,14 +6,13 @@ const byte ECHO_LEFT = PA0;
 const byte TRIG_LEFT = PC15;
 const byte ECHO_RIGHT = PA2;
 const byte TRIG_RIGHT = PA1;
+long distance;
 enum Mode
 {
   Mode_EwokDetect,
   Mode_ZiplineDetect
-}
+};
 Mode currentMode;
-
-long distance;
 
 void setup()
 {
@@ -28,6 +26,7 @@ void setup()
   pinMode(TRIG_LEFT, OUTPUT);
   pinMode(ECHO_RIGHT, INPUT);
   pinMode(TRIG_RIGHT, OUTPUT);
+  currentMode = Mode_EwokDetect;
 }
 
 void loop()
@@ -71,5 +70,3 @@ uint8_t UltrasonicDistance(byte trig, byte echo) {
   }
   return distance;
 }
-
-

@@ -1,4 +1,4 @@
-//Follows tape using PID control
+// Follows tape using PID control
 void TapeFollow()
 {
   LCD.print("LS:");
@@ -6,7 +6,6 @@ void TapeFollow()
   LCD.setCursor(8, 0);
   LCD.print("RS:");
   LCD.print(analogRead(RIGHT_LF_QRD));
-
   if (analogRead(RIGHT_LF_QRD) > 100)
   {
     right = 1;
@@ -27,14 +26,16 @@ void TapeFollow()
   {
     error = 0;
   }
-  else if (left && !right)
-  {
-    error = -1;
-  }
-  else if (!left && right)
-  {
-    error = 1;
-  }
+  else
+    if (left && !right)
+    {
+      error = -1;
+    }
+  else
+    if (!left && right)
+    {
+      error = 1;
+    }
   else
   {
     if (prevErr > 0)
@@ -53,18 +54,20 @@ void TapeFollow()
   {
     rightSpeed = MotorMax.Value;
   }
-  else if (rightSpeed < 0)
-  {
-    rightSpeed = 0;
-  }
+  else
+    if (rightSpeed < 0)
+    {
+      rightSpeed = 0;
+    }
   if (leftSpeed > MotorMax.Value)
   {
     leftSpeed = MotorMax.Value;
   }
-  else if (leftSpeed < 0)
-  {
-    leftSpeed = 0;
-  }
+  else
+    if (leftSpeed < 0)
+    {
+      leftSpeed = 0;
+    }
   LCD.setCursor(0, 1);
   motor.speed(LEFT_MOTOR, leftSpeed);
   motor.speed(RIGHT_MOTOR, rightSpeed);
@@ -79,13 +82,13 @@ void TapeFollow()
 void update()
 {
   unsigned long now = millis();
-  double dtime = (double)(now - prevTime);
-
+  double dtime = (double) (now - prevTime);
   errSum += (error * dtime);
   double dErr = (error - prevErr) / dtime;
-
   Out = ProportionalGain.Value * error + IntegralGain.Value * errSum + DerivativeGain.Value * dErr;
-
   prevErr = error;
   prevTime = now;
 }
+
+
+

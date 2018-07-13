@@ -29,3 +29,6 @@ void ZiplineDetect()
 		dists[i] = d;
 	}
 }
+
+
+

@@ -1,20 +1,23 @@
-#include <Wire.h>
 #include <phys253.h>
 #include <LiquidCrystal.h>
 #include <avr/EEPROM.h>
-#define LEFT_MOTOR 0
-#define RIGHT_MOTOR 1
-#define LEFT_LF_QRD 4 // line following qrds
-#define RIGHT_LF_QRD 5
-#define LEFT_EDGE_QRD 2 // edge avoiding qrds
-#define RIGHT_EDGE_QRD 3
-#define TEN_KHZ_PIN 6 // analog 1
-#define ONE_KHZ_PIN 7 // analog 0
-#define BLUE_ADDR1 2 // i2c address of blue pill
+#include <Wire.h>
+const byte LEFT_MOTOR = 0;
+const byte RIGHT_MOTOR = 1;
+const byte LEFT_LF_QRD = 4; // line following qrds
+const byte RIGHT_LF_QRD = 5;
+const byte LEFT_EDGE_QRD = 2; // edge avoiding qrds
+const byte RIGHT_EDGE_QRD = 3;
+const byte TEN_KHZ_PIN = 6; // analog 1
+const byte ONE_KHZ_PIN = 7; // analog 0
+const byte BLUE_ADDR1 = 2; // i2c address of blue pill
+const byte ENCODER_A = 2;
+const byte ENCODER_B = 3;
+volatile int32_t pos;
 uint16_t tenkhzread, onekhzread;
-uint8_t leftSpeed, rightSpeed;
+int16_t leftSpeed, rightSpeed;
 double error, prevErr, Out, errSum;
-uint32_t prevTime;
+volatile uint32_t prevTime, nextencode;
 boolean left, right;
 enum RobotState
 {
@@ -68,11 +71,15 @@ void setup()
   pinMode(RIGHT_LF_QRD, INPUT);
   pinMode(TEN_KHZ_PIN, INPUT);
   pinMode(ONE_KHZ_PIN, INPUT);
-  statecontrol = State_TapeFollow;
+  pinMode(ENCODER_A, INPUT);
+  pinMode(ENCODER_B, INPUT);
+  statecontrol = State_Testing;
   Wire.begin();
   RCServo0.write(0);
   RCServo1.write(90);
   RCServo2.write(180);
+  attachInterrupt(INT2, encoder, FALLING);
+  pos = 0;
 }
 
 void loop()
@@ -90,7 +97,7 @@ void loop()
   {
     case State_TapeFollow:
       TapeFollow();
-      EwokDetect();
+      //EwokDetect();
       break;
     case State_IRDetect:
       TapeFollow();
@@ -121,6 +128,8 @@ void loop()
       // If zipline has been aligned, ZiplinePlace()
       break;
     case State_Testing:
+      LCD.print(pos);
+      delay(250);
       break;
   }
 }
@@ -173,3 +182,12 @@ void Menu()
     }
   }
 }
+
+void encoder() {
+  if (millis() > nextencode) {
+    pos++;
+    nextencode = millis() + 10;
+  }
+}
+
+
