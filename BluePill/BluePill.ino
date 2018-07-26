@@ -6,6 +6,7 @@ const byte ECHO_LEFT = PA0;
 const byte TRIG_LEFT = PC15;
 const byte ECHO_RIGHT = PA2;
 const byte TRIG_RIGHT = PA1;
+const byte I2C_ADDR = 2;
 long distance;
 enum Mode
 {
@@ -17,7 +18,7 @@ Mode currentMode;
 void setup()
 {
   Serial.begin(9600);
-  Wire.begin(2); // join i2c bus with address #2
+  Wire.begin(I2C_ADDR); // join i2c bus with address #2
   Wire.onRequest(requestEvent); // register event
   Wire.onReceive(receiveEvent);
   pinMode(ECHO_CLAW, INPUT);

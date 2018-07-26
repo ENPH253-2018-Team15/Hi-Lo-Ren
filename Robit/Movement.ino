@@ -30,10 +30,26 @@ void Pivot(boolean direction, unsigned long duration)
 	delay(duration);
 }
 
+void DriveStraight(unsigned long duration)
+{
+  motor.speed(LEFT_MOTOR, MotorBase.Value);
+  motor.speed(RIGHT_MOTOR, MotorBase.Value);
+  delay(duration);
+}
+
+void ReverseStraight(unsigned long duration)
+{
+  motor.speed(LEFT_MOTOR, -MotorBase.Value);
+  motor.speed(RIGHT_MOTOR, -MotorBase.Value);
+  delay(duration);
+}
+
 // Celebration dance
 void Dance()
 {
 }
+
+
 
 
 

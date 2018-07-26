@@ -6,6 +6,8 @@ void EdgeAvoid()
   LCD.setCursor(8, 0);
   LCD.print("RS:");
   LCD.print(analogRead(RIGHT_EDGE_QRD));
+  boolean left = analogRead(LEFT_EDGE_QRD) > 100;
+  boolean right = analogRead(RIGHT_EDGE_QRD) > 100;
   if (!left && !right)
   {
     Out = 0;
@@ -53,6 +55,8 @@ void EdgeAvoid()
   LCD.print("RM:");
   LCD.print(rightSpeed);
 }
+
+
 
 
 
