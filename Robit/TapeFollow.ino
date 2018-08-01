@@ -6,33 +6,51 @@ void TapeFollow()
   LCD.setCursor(8, 0);
   LCD.print("RS:");
   LCD.print(analogRead(RIGHT_LF_QRD));
-  boolean left = analogRead(LEFT_LF_QRD) > QRD_THRESH;
-  boolean right = analogRead(RIGHT_LF_QRD) > QRD_THRESH;
-
+  boolean left = analogRead(LEFT_LF_QRD) > ThreshTape.Value;
+  boolean right = analogRead(RIGHT_LF_QRD) > ThreshTape.Value;
   if (left && right)
   {
     error = 0;
+    offtape = 0;
   }
   else if (left && !right)
   {
     error = -1;
+    offtape = 0;
   }
   else if (!left && right)
   {
     error = 1;
+    offtape = 0;
   }
   else
   {
+    if (!offtape) {
+      offtape = 1;
+      offtapebegin = millis();
+      offtapetimer = 0;
+    } else {
+      offtapetimer = millis() - offtapebegin;
+    }
     if (prevErr > 0)
     {
-      error = 5;
+      if (offtapetimer < 250) {
+        error = 5;
+      } else {
+        FindTape(0);
+      }
     }
     else
     {
-      error = -5;
+      if (offtapetimer < 250) {
+        error = -5;
+      } else {
+        FindTape(1);
+      }
     }
+    
   }
-  update();
+  updateTapeFollow();
   leftSpeed = MotorBase.Value + Out;
   rightSpeed = MotorBase.Value - Out;
   if (rightSpeed > MotorMax.Value)
@@ -62,7 +80,7 @@ void TapeFollow()
 }
 
 // PID control step
-void update()
+void updateTapeFollow()
 {
   unsigned long now = millis();
   double dtime = (double) (now - prevTime);
@@ -72,6 +90,7 @@ void update()
   prevErr = error;
   prevTime = now;
 }
+
 
 
 

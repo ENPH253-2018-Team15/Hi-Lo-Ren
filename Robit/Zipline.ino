@@ -25,7 +25,7 @@ void ZiplinePlace()
 }
 
 // Detecting zipline above
-void ZiplineDetect()
+void ZiplineDetect(boolean direction)
 {
   // Reading ultrasonic sensors connected to bluepill
   Wire.beginTransmission(BLUE_ADDR1);
@@ -44,7 +44,33 @@ void ZiplineDetect()
     // LCD.print("/");
     dists[i] = d;
   }
+  boolean leftzip = dists[1] < 10 && dists[1] != 0;
+  boolean rightzip = dists[2] < 10 && dists[2] != 0;
+    if (leftzip && rightzip){
+      motor.stop(LEFT_MOTOR);
+      motor.stop(RIGHT_MOTOR);
+    } else if (leftzip){
+      if (direction){
+        Pivot(0,1);
+      } else{
+        Pivot(0,1);
+      }
+    } else if (rightzip){
+      if (direction){
+        Pivot(1,1);
+      } else{
+        PivotBack(1,1);
+      }
+      
+    }
 }
+
+
+
+
+
+
+
 
 
 

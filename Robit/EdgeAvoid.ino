@@ -6,28 +6,30 @@ void EdgeAvoid()
   LCD.setCursor(8, 0);
   LCD.print("RS:");
   LCD.print(analogRead(RIGHT_EDGE_QRD));
-  boolean left = analogRead(LEFT_EDGE_QRD) > 100;
-  boolean right = analogRead(RIGHT_EDGE_QRD) > 100;
+  boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
+  boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
   if (!left && !right)
   {
-    Out = 0;
+    leftSpeed = MotorBase.Value;
+    rightSpeed = MotorBase.Value * 3/4;
   }
   else
     if (left && !right)
     {
-      Out = -50;
+      leftSpeed = MotorBase.Value * 7/4;
+      rightSpeed = MotorBase.Value * 1/4;
     }
   else
     if (!left && right)
     {
-      Out = 50;
+      leftSpeed = MotorBase.Value * 1/4;
+      rightSpeed = MotorBase.Value * 7/4;
     }
   else
   {
-    motor.stop_all();
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
   }
-  leftSpeed = MotorBase.Value + Out;
-  rightSpeed = MotorBase.Value - Out;
   if (rightSpeed > MotorMax.Value)
   {
     rightSpeed = MotorMax.Value;
@@ -55,8 +57,4 @@ void EdgeAvoid()
   LCD.print("RM:");
   LCD.print(rightSpeed);
 }
-
-
-
-
 
