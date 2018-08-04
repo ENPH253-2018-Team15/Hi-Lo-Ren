@@ -1,26 +1,37 @@
 #include <phys253.h>
 #include <LiquidCrystal.h>
 #include <avr/EEPROM.h>
-#include <Wire.h>
 
 const byte LEFT_MOTOR = 0;
 const byte RIGHT_MOTOR = 1;
 const byte SCISSOR_MOTOR = 2;
 const byte CLAW_MOTOR = 3;
-const byte LEFT_LF_QRD = 4; // line following qrds
-const byte RIGHT_LF_QRD = 5;
-const byte LEFT_EDGE_QRD = 3; // edge avoiding qrds
-const byte RIGHT_EDGE_QRD = 6;
-const byte CLAW_POT = 8;
-const byte EWOK_DETECTOR = 2;
-const byte TEN_KHZ_PIN = 0; // analog 7
-const byte ONE_KHZ_PIN = 1;
-const byte BLUE_ADDR1 = 2; // i2c address of blue pill
-const byte ENCODER_A = 2;
-const byte ENCODER_B = 3;
-const byte SCISSOR_BUMP = 15;
+const byte TEN_KHZ_PIN = 7; // Analog 0
+const byte ONE_KHZ_PIN = 6;
+const byte CLAW_POT = 5;
+const byte LEFT_LF_QRD = 1; // line following qrds
+const byte RIGHT_LF_QRD = 0;
+const byte LEFT_EDGE_QRD = 2; // edge avoiding qrds
+const byte RIGHT_EDGE_QRD = 3;
+const byte EWOK_DETECTOR = 4;
+const byte SCISSOR_BUMP = 4; // Digital 5
+const byte FRONT_BUMP = 5;
+const byte LEFT_US_TRIG = 9;
+const byte RIGHT_US_TRIG = 8;
+const byte LEFT_US_ECHO = 7;
+const byte RIGHT_US_ECHO = 6;
 uint16_t LEFT_EDGE_THRESH, RIGHT_EDGE_THRESH;
-uint16_t CLAW_LEFT, CLAW_UP, CLAW_RIGHT;
+uint16_t CLAW_LEFT = 285;
+uint16_t CLAW_UP_LEFT = 615;
+uint16_t CLAW_UP_RIGHT = 675;
+uint16_t CLAW_RIGHT = 970;
+const byte CLAW_SERVO_OPEN = 2;
+const byte CLAW_SERVO_CLOSED = 45;
+const byte BRIDGE1_SERVO_OPEN = 2;
+const byte BRIDGE1_SERVO_CLOSED = 90;
+const byte BRIDGE2_SERVO_OPEN = 90;
+const byte BRIDGE2_SERVO_CLOSED = 2;
+uint8_t MOTOR_BASE;
 volatile int32_t pos;
 uint16_t tenkhzread, onekhzread;
 int16_t leftSpeed, rightSpeed;
@@ -30,13 +41,20 @@ volatile uint32_t prevTime, nextencode, timer, timerbegin, offtapebegin, offtape
 uint32_t testtime0, testtime1, testtime2, testtime3, testtime4;
 enum RobotState
 {
-  State_Begin,
-  State_IRDetect,
+  State_Ewok1,
+  State_EdgeAlign1,
+  State_EdgeAlign2,
   State_Bridge1Align,
   State_Bridge1Place,
-  State_EdgeAvoid,
-  State_Zipline,
-  State_EwokRetrieval,
+  State_Ewok2,
+  State_RightEdgeFollow,
+  State_Ewok3,
+  State_Zipline1,
+  State_Bridge2Align,
+  State_Bridge2Place,
+  State_Ewok4,
+  State_Chewbacca,
+  State_Zipline2,
   State_Testing0,
   State_Testing1,
   State_Testing2,
@@ -100,21 +118,20 @@ MenuItem menuItems[] =
 void setup()
 {
 #include <phys253setup.txt>
-  RCServo0.write(0);
-  RCServo1.write(90);
-  RCServo2.write(0);
+  RCServo1.write(BRIDGE1_SERVO_CLOSED);
+  RCServo2.write(BRIDGE2_SERVO_CLOSED);
   pinMode(LEFT_LF_QRD, INPUT);
   pinMode(RIGHT_LF_QRD, INPUT);
   pinMode(LEFT_EDGE_QRD, INPUT);
   pinMode(RIGHT_EDGE_QRD, INPUT);
   pinMode(TEN_KHZ_PIN, INPUT);
   pinMode(ONE_KHZ_PIN, INPUT);
-  pinMode(ENCODER_A, INPUT);
-  pinMode(ENCODER_B, INPUT);
   pinMode(SCISSOR_BUMP, INPUT);
+  pinMode(LEFT_US_ECHO, INPUT);
+  pinMode(LEFT_US_TRIG, OUTPUT);
+  pinMode(RIGHT_US_ECHO, INPUT);
+  pinMode(RIGHT_US_TRIG, OUTPUT);
   statecontrol = (RobotState) (StartState.Value);
-  Wire.begin();
-  attachInterrupt(INT2, encoder, FALLING);
   pos = 0;
   pinMode(35, OUTPUT);
   pinMode(14, INPUT);
@@ -127,6 +144,11 @@ void setup()
   testtime2 = (uint32_t) TestTime2.Value * 100;
   testtime3 = (uint32_t) TestTime3.Value * 100;
   testtime4 = (uint32_t) TestTime4.Value * 100;
+  MOTOR_BASE = MotorBase.Value;
+  ClawRotate(1);
+  RCServo0.write(CLAW_SERVO_OPEN);
+  delay(1000);
+
 }
 
 void loop()
@@ -142,14 +164,47 @@ void loop()
   }
   switch (statecontrol)
   {
-    case State_Begin: {
+    case State_Ewok1: {
         TapeFollow();
-        EwokDetect();
+        Ewok1Detect();
       } break;
-    case State_IRDetect: {
-        //TapeFollow();
-        IRBeacon();
-        //EwokDetect();
+    case State_EdgeAlign1: {
+        boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
+        boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
+        LCD.print(analogRead(LEFT_EDGE_QRD));
+        LCD.print("/");
+        LCD.print(analogRead(RIGHT_EDGE_QRD));
+        if (left && right) {
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          statecontrol = State_EdgeAlign2;
+        } else if (left) {
+          Pivot(0, 1);
+        } else if (right) {
+          Pivot(1, 1);
+        } else {
+          DriveStraight(1);
+        }
+      } break;
+    case State_EdgeAlign2: {
+        boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
+        boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
+        LCD.print(analogRead(LEFT_EDGE_QRD));
+        LCD.print("/");
+        LCD.print(analogRead(RIGHT_EDGE_QRD));
+        if (left && right) {
+          ReverseStraight(1);
+        } else if (right) {
+          PivotBack(0, 1);
+        } else if (left) {
+          PivotBack(1, 1);
+        } else {
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          LCD.print("Edge Aligned");
+          ZeroTurn(0, 1000);
+          statecontrol = State_Bridge1Align;
+        }
       } break;
     case State_Bridge1Align: {
         boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
@@ -166,7 +221,7 @@ void loop()
         } else if (right) {
           Pivot(1, 1);
         } else {
-          TapeFollow();
+          DriveStraight(1);
         }
       } break;
     case State_Bridge1Place: {
@@ -185,47 +240,126 @@ void loop()
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           LCD.print("Edge Aligned");
+          ReverseStraight(300);
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          RCServo1.write(BRIDGE1_SERVO_OPEN);
+          delay(500);
+          DriveStraight(1000);
+          statecontrol = State_Ewok2;
+        }
+      } break;
+    case State_Ewok2: {
+        TapeFollow();
+        Ewok2Detect();
+      } break;
+    case State_RightEdgeFollow: {
+        EdgeFollow();
+        if (!FRONT_BUMP){
+          motor.speed(LEFT_MOTOR,-MOTOR_BASE/2);
+          motor.speed(RIGHT_MOTOR,-MOTOR_BASE);
+          delay(300);
+        }
+      } break;
+    case State_Ewok3: {
+        TapeFollow();
+        Ewok3Detect();
+      } break;
+    case State_Zipline1: {
+        Zipline1Detect();
+      } break;
+    case State_Bridge2Align: {
+        boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
+        boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
+        LCD.print(analogRead(LEFT_EDGE_QRD));
+        LCD.print("/");
+        LCD.print(analogRead(RIGHT_EDGE_QRD));
+        if (left && right) {
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          statecontrol = State_Bridge2Place;
+        } else if (left) {
+          Pivot(0, 1);
+        } else if (right) {
+          Pivot(1, 1);
+        } else {
+          DriveStraight(1);
+        }
+      } break;
+    case State_Bridge2Place: {
+        boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
+        boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
+        LCD.print(analogRead(LEFT_EDGE_QRD));
+        LCD.print("/");
+        LCD.print(analogRead(RIGHT_EDGE_QRD));
+        if (left && right) {
+          ReverseStraight(1);
+        } else if (right) {
+          PivotBack(0, 1);
+        } else if (left) {
+          PivotBack(1, 1);
+        } else {
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          LCD.print("Edge Aligned");
           ReverseStraight(200);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          RCServo1.write(0);
+          RCServo1.write(BRIDGE1_SERVO_OPEN);
           delay(500);
-          DriveStraight(2000);
+          statecontrol = State_Ewok4;
         }
       } break;
-    case State_EdgeAvoid: {
+    case State_Ewok4: {
+        Ewok4Detect();
+      } break;
+    case State_Chewbacca: {
         EdgeAvoid();
         //EwokDetect();
       } break;
-    case State_EwokRetrieval: {
-        EwokRetrieve();
-        // Once Ewok has been retrieved, return to original state.
-      } break;
-    case State_Zipline: {
-        ScissorLift(1);
-        delay(1000);
-        motor.speed(LEFT_MOTOR, -MotorBase.Value);
-        motor.speed(RIGHT_MOTOR, -MotorBase.Value);
-        delay(1000);
-        motor.stop(LEFT_MOTOR);
-        motor.stop(RIGHT_MOTOR);
-        delay(1000);
-        ScissorLift(0);
-        // If zipline has been aligned, ZiplinePlace()
+    case State_Zipline2: {
+        Zipline2Detect();
       } break;
     case State_Testing0: {
-        IRBeacon();
+        LCD.print(analogRead(CLAW_POT));
+        LCD.setCursor(0,1);
+        LCD.print(analogRead(EWOK_DETECTOR));
+        delay(500);
       } break;
     case State_Testing1: {
+        digitalWrite(RIGHT_US_TRIG, LOW);
+        delayMicroseconds(2);
+        digitalWrite(RIGHT_US_TRIG, HIGH);
+        delayMicroseconds(10);
+        digitalWrite(RIGHT_US_TRIG, LOW);
+        uint16_t rightdist = pulseIn(RIGHT_US_ECHO, HIGH) * .034 / 2;
+
+        digitalWrite(LEFT_US_TRIG, LOW);
+        delayMicroseconds(2);
+        digitalWrite(LEFT_US_TRIG, HIGH);
+        delayMicroseconds(10);
+        digitalWrite(LEFT_US_TRIG, LOW);
+        uint16_t leftdist = pulseIn(LEFT_US_ECHO, HIGH) * .034 / 2;
+
+        LCD.print(leftdist);
+        LCD.setCursor(0, 1);
+        LCD.print(rightdist);
+        delay(500);
       } break;
     case State_Testing2: {
-        DriveStraight(1);
+        LCD.print(analogRead(LEFT_LF_QRD));
+        LCD.print("/");
+        LCD.print(analogRead(RIGHT_LF_QRD));
+        LCD.setCursor(0,1);
+        LCD.print(analogRead(LEFT_EDGE_QRD));
+        LCD.print("/");
+        LCD.print(analogRead(RIGHT_EDGE_QRD));
       } break;
     case State_Testing3: {
-        FindTape(1);
-        motor.stop(LEFT_MOTOR);
-        motor.stop(RIGHT_MOTOR);
-        delay(2000);
+        LCD.print(analogRead(ONE_KHZ_PIN));
+        LCD.setCursor(0,1);
+        LCD.print(analogRead(TEN_KHZ_PIN));
+        delay(500);
       } break;
     case State_Testing4: {
         LCD.print("DANCE!");
@@ -233,20 +367,3 @@ void loop()
       } break;
   }
 }
-
-void encoder() {
-  if (millis() > nextencode) {
-    pos++;
-    nextencode = millis() + 10;
-  }
-}
-
-
-
-
-
-
-
-
-
-

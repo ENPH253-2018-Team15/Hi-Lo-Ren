@@ -1,3 +1,4 @@
+
 void Menu()
 {
   timer = millis() - timerbegin;
@@ -76,36 +77,36 @@ void Menu()
       if (startbutton()) {
         delay(100);
         if (startbutton()) {
-          RCServo0.write(90);
+          RCServo0.write(CLAW_SERVO_OPEN);
         }
       } else if (stopbutton()) {
         delay(100);
         if (stopbutton()) {
-          RCServo0.write(0);
+          RCServo0.write(CLAW_SERVO_CLOSED);
         }
       }
     } else if (menuItems[menuIndex].Name.equals("RunServo1")) {
       if (startbutton()) {
         delay(100);
         if (startbutton()) {
-          RCServo1.write(90);
+          RCServo1.write(BRIDGE1_SERVO_OPEN);
         }
       } else if (stopbutton()) {
         delay(100);
         if (stopbutton()) {
-          RCServo1.write(0);
+          RCServo1.write(BRIDGE1_SERVO_CLOSED);
         }
       }
     } else if (menuItems[menuIndex].Name.equals("RunServo2")) {
       if (startbutton()) {
         delay(100);
         if (startbutton()) {
-          RCServo2.write(90);
+          RCServo2.write(BRIDGE2_SERVO_OPEN);
         }
       } else if (stopbutton()) {
         delay(100);
         if (stopbutton()) {
-          RCServo2.write(0);
+          RCServo2.write(BRIDGE2_SERVO_CLOSED);
         }
       }
     } else if (menuItems[menuIndex].Name.equals("RunClaw")) {
@@ -132,7 +133,7 @@ void Menu()
           delay(250);
         }
       }
-    } 
+    }
     else {
       if (startbutton())
       {
@@ -161,4 +162,5 @@ void Menu()
     }
   }
 }
+
 

@@ -1,21 +1,26 @@
 // Detects infrared beacon
 void IRBeacon()
 {
-	tenkhzread = analogRead(TEN_KHZ_PIN) > 500;
-	onekhzread = analogRead(ONE_KHZ_PIN) > 500;
-	LCD.print("1:");
-	LCD.print(analogRead(ONE_KHZ_PIN));
-  LCD.print("/");
-	LCD.print("10:");
-	LCD.print(analogRead(TEN_KHZ_PIN));
-  LCD.setCursor(0,1);
-  if (!onekhzread && !tenkhzread) {
-    LCD.print("NO IR DETECTED");
-  } else if (onekhzread && !tenkhzread){
-    LCD.print("1KHZ DETECTED");
-  } else if (tenkhzread){
-    LCD.print("10KHZ DETECTED");
+  motor.stop(LEFT_MOTOR);
+  motor.stop(RIGHT_MOTOR);
+  tenkhzread = analogRead(TEN_KHZ_PIN) > 500;
+  onekhzread = analogRead(ONE_KHZ_PIN) > 500;
+  if (analogRead(TEN_KHZ_PIN) < 500 && analogRead(ONE_KHZ_PIN) < 500) {
+    LCD.clear();
+    LCD.print("NO IR FOUND");
+    while (analogRead(TEN_KHZ_PIN) < 500 && analogRead(ONE_KHZ_PIN) < 500) {
+      Pivot(1, 1);
+    }
   }
-	// if 1kHz detected, wait until 10kHz detected
+  while (analogRead(TEN_KHZ_PIN) < 500 && analogRead(ONE_KHZ_PIN) > 500) {
+    LCD.clear();
+    LCD.print("1KHZ FOUND");
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+  }
+  LCD.clear();
+  LCD.print("10KHZ FOUND");
+  ClawRotate(0);
 }
+
 

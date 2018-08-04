@@ -3,13 +3,13 @@ void ZeroTurn(boolean direction, unsigned long duration)
 {
   if (!direction)
   {
-    motor.speed(LEFT_MOTOR, -MotorBase.Value);
-    motor.speed(RIGHT_MOTOR, MotorBase.Value);
+    motor.speed(LEFT_MOTOR, -MOTOR_BASE);
+    motor.speed(RIGHT_MOTOR, MOTOR_BASE);
   }
   else
   {
-    motor.speed(RIGHT_MOTOR, -MotorBase.Value);
-    motor.speed(LEFT_MOTOR, MotorBase.Value);
+    motor.speed(RIGHT_MOTOR, -MOTOR_BASE);
+    motor.speed(LEFT_MOTOR, MOTOR_BASE);
   }
   delay(duration);
 }
@@ -20,12 +20,12 @@ void Pivot(boolean direction, unsigned long duration)
   if (!direction)
   {
     motor.stop(LEFT_MOTOR);
-    motor.speed(RIGHT_MOTOR, MotorBase.Value);
+    motor.speed(RIGHT_MOTOR, MOTOR_BASE);
   }
   else
   {
     motor.stop(RIGHT_MOTOR);
-    motor.speed(LEFT_MOTOR, MotorBase.Value);
+    motor.speed(LEFT_MOTOR, MOTOR_BASE);
   }
   delay(duration);
 }
@@ -36,27 +36,27 @@ void PivotBack(boolean direction, unsigned long duration)
   if (!direction)
   {
     motor.stop(LEFT_MOTOR);
-    motor.speed(RIGHT_MOTOR, -MotorBase.Value);
+    motor.speed(RIGHT_MOTOR, -MOTOR_BASE);
   }
   else
   {
     motor.stop(RIGHT_MOTOR);
-    motor.speed(LEFT_MOTOR, -MotorBase.Value);
+    motor.speed(LEFT_MOTOR, -MOTOR_BASE);
   }
   delay(duration);
 }
 
 void DriveStraight(unsigned long duration)
 {
-  motor.speed(LEFT_MOTOR, MotorBase.Value);
-  motor.speed(RIGHT_MOTOR, MotorBase.Value);
+  motor.speed(LEFT_MOTOR, MOTOR_BASE);
+  motor.speed(RIGHT_MOTOR, MOTOR_BASE);
   delay(duration);
 }
 
 void ReverseStraight(unsigned long duration)
 {
-  motor.speed(LEFT_MOTOR, -MotorBase.Value);
-  motor.speed(RIGHT_MOTOR, -MotorBase.Value);
+  motor.speed(LEFT_MOTOR, -MOTOR_BASE);
+  motor.speed(RIGHT_MOTOR, -MOTOR_BASE);
   delay(duration);
 }
 
@@ -69,9 +69,9 @@ void FindTape(boolean direction) {
       switched = 1;
     }
     if (direction) {
-      ZeroTurn(1,1);
+      ZeroTurn(1, 1);
     } else {
-      ZeroTurn(0,1);
+      ZeroTurn(0, 1);
     }
   }
 }
@@ -82,6 +82,7 @@ void Dance()
   ZeroTurn(0, 200);
   ZeroTurn(1, 200);
 }
+
 
 
 

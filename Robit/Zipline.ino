@@ -7,7 +7,7 @@ void ZipAlign()
 void ScissorLift(boolean direction)
 {
   if (direction) {
-    if (digitalRead(SCISSOR_BUMP)) {
+    if (!digitalRead(SCISSOR_BUMP)) {
       motor.stop(SCISSOR_MOTOR);
     } else {
       motor.speed(SCISSOR_MOTOR, 255);
@@ -25,49 +25,90 @@ void ZiplinePlace()
 }
 
 // Detecting zipline above
-void ZiplineDetect(boolean direction)
+void Zipline1Detect()
 {
-  // Reading ultrasonic sensors connected to bluepill
-  Wire.beginTransmission(BLUE_ADDR1);
-  Wire.write(1);
-  Wire.endTransmission();
-  uint8_t dists[2];
-  Wire.requestFrom(BLUE_ADDR1, 2);
-  while (!Wire.available())
-  {
-    delay(1);
+  digitalWrite(LEFT_US_TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(LEFT_US_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(LEFT_US_TRIG, LOW);
+  uint16_t leftdist = pulseIn(LEFT_US_ECHO, HIGH) * .034 / 2;
+  digitalWrite(RIGHT_US_TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(RIGHT_US_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(RIGHT_US_TRIG, LOW);
+  uint16_t rightdist = pulseIn(RIGHT_US_ECHO, HIGH) * .034 / 2;
+  boolean leftfound = leftdist < 15 && leftdist != 0;
+  boolean rightfound = rightdist < 15 && rightdist != 0;
+  if (leftfound && rightfound) {
+    ZeroTurn(1, 200);
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+    statecontrol = State_Bridge2Align;
+  } else if (leftfound) {
+    PivotBack(0, 1);
+  } else if (rightfound) {
+    PivotBack(1, 1);
+  } else {
+    ReverseStraight(1);
   }
-  for (int i = 0; i < 2; i++)
-  {
-    uint8_t d = Wire.read();
-    // LCD.print(d);
-    // LCD.print("/");
-    dists[i] = d;
-  }
-  boolean leftzip = dists[1] < 10 && dists[1] != 0;
-  boolean rightzip = dists[2] < 10 && dists[2] != 0;
-    if (leftzip && rightzip){
-      motor.stop(LEFT_MOTOR);
-      motor.stop(RIGHT_MOTOR);
-    } else if (leftzip){
-      if (direction){
-        Pivot(0,1);
-      } else{
-        Pivot(0,1);
-      }
-    } else if (rightzip){
-      if (direction){
-        Pivot(1,1);
-      } else{
-        PivotBack(1,1);
-      }
-      
-    }
 }
 
+void Zipline2Detect()
+{
+  digitalWrite(LEFT_US_TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(LEFT_US_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(LEFT_US_TRIG, LOW);
+  uint16_t leftdist = pulseIn(LEFT_US_ECHO, HIGH) * .034 / 2;
+  digitalWrite(RIGHT_US_TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(RIGHT_US_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(RIGHT_US_TRIG, LOW);
+  uint16_t rightdist = pulseIn(RIGHT_US_ECHO, HIGH) * .034 / 2;
+  boolean leftfound = leftdist < 15 && leftdist != 0;
+  boolean rightfound = rightdist < 15 && rightdist != 0;
+  if (leftfound && rightfound) {
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+    ScissorLift(1);
+    delay(1000);
+    ReverseStraight(1000);
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+    delay(1000);
+    ScissorLift(0);
+  } else if (leftfound) {
+    Pivot(0, 1);
+  } else if (rightfound) {
+    Pivot(1, 1);
+  } else {
+    DriveStraight(1);
+  }
+}
 
-
-
+boolean ZiplineDetect(boolean direction){
+  uint16_t dist;
+  if (direction){
+  digitalWrite(RIGHT_US_TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(RIGHT_US_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(RIGHT_US_TRIG, LOW);
+  dist = pulseIn(RIGHT_US_ECHO, HIGH) * .034 / 2;
+  } else{
+  digitalWrite(LEFT_US_TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(LEFT_US_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(LEFT_US_TRIG, LOW);
+  dist = pulseIn(LEFT_US_ECHO, HIGH) * .034 / 2;
+  }
+  return dist < 15 && dist != 0;
+}
 
 
 

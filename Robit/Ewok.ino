@@ -1,65 +1,77 @@
-void EwokDetect()
-{
-  /*
-	// Reading ultrasonic sensors connected to bluepill
-	Wire.beginTransmission(BLUE_ADDR1);
-	Wire.write(0);
-	Wire.endTransmission();
-	uint8_t dists[3];
-	Wire.requestFrom(BLUE_ADDR1, 3);
-	while (!Wire.available())
-	{
-		delay(1);
-
-		
-	}
-	for (int i = 0; i < 3; i++)
-	{
-		uint8_t d = Wire.read();
-		// LCD.print(d);
-		// LCD.print("/");
-		dists[i] = d;
-	}
- */
-  digitalWrite(35, LOW);
-  delayMicroseconds(2);
-  digitalWrite(35, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(35, LOW);
-  uint16_t distance = pulseIn(14, HIGH) * .034 / 2;
-  if (distance > 255) {
-    distance = 255;
+boolean EwokDetected() {
+  if (analogRead(EWOK_DETECTOR) < 10) {
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+    return true;
+  } else {
+    return false;
   }
-  if (distance < 10 && distance !=0){
+}
+
+void Ewok1Detect()
+{
+  if (EwokDetected()) {
     motor.stop(LEFT_MOTOR);
     motor.stop(RIGHT_MOTOR);
     LCD.clear();
-    LCD.print("EWOK DETECTED");
-    LCD.setCursor(0,1);
-    LCD.print(distance);
-    delay(1000);
-    DriveStraight(testtime1);
-    FindTape(0);
-    statecontrol = State_Bridge1Align;
+    LCD.print("EWOK 1 DETECTED");
+    RCServo0.write(CLAW_SERVO_CLOSED);
+    ClawRotate(0);
+    PivotBack(0,800);
+    statecontrol = State_EdgeAlign1;
   }
 }
 
-// If object detected near Ewok location, go to Ewok Retrieval state
-void EwokRetrieve()
+void Ewok2Detect()
 {
-	// Align robot to Ewok
-	// Pick up Ewok
+  if (EwokDetected()) {
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+    LCD.clear();
+    LCD.print("EWOK 2 DETECTED");
+    RCServo0.write(CLAW_SERVO_CLOSED);
+    ClawRotate(0);
+    ZeroTurn(0,500);
+    ReverseStraight(500);
+    FindTape(1);
+    IRBeacon();
+    statecontrol = State_Ewok3;
+  }
 }
 
+void Ewok3Detect()
+{
+  if (EwokDetected()) {
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+    LCD.clear();
+    LCD.print("EWOK3 DETECTED");
+    RCServo0.write(CLAW_SERVO_CLOSED);
+    ClawRotate(0);
+    statecontrol = State_Zipline1;
+  }
+}
 
-
-
-
-
-
-
-
-
-
-
-
+void Ewok4Detect()
+{
+  if (EwokDetected()) {
+  motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+    LCD.clear();
+    LCD.print("EWOK4 DETECTED");
+    RCServo0.write(CLAW_SERVO_CLOSED);
+    ClawRotate(0);
+    statecontrol = State_Chewbacca;
+  }
+}
+void ChewbaccaDetect()
+{
+  motor.stop(LEFT_MOTOR);
+  motor.stop(RIGHT_MOTOR);
+  LCD.clear();
+  LCD.print("CHEWIE DETECTED");
+  ClawRotate(-1);
+  RCServo0.write(CLAW_SERVO_CLOSED);
+  ClawRotate(0);
+  statecontrol = State_Zipline2;
+}

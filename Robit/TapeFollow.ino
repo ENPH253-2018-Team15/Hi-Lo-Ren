@@ -34,7 +34,7 @@ void TapeFollow()
     }
     if (prevErr > 0)
     {
-      if (offtapetimer < 250) {
+      if (offtapetimer < 500) {
         error = 5;
       } else {
         FindTape(0);
@@ -42,17 +42,17 @@ void TapeFollow()
     }
     else
     {
-      if (offtapetimer < 250) {
+      if (offtapetimer < 500) {
         error = -5;
       } else {
         FindTape(1);
       }
     }
-    
+
   }
   updateTapeFollow();
-  leftSpeed = MotorBase.Value + Out;
-  rightSpeed = MotorBase.Value - Out;
+  leftSpeed = MOTOR_BASE + Out;
+  rightSpeed = MOTOR_BASE - Out;
   if (rightSpeed > MotorMax.Value)
   {
     rightSpeed = MotorMax.Value;
@@ -90,6 +90,7 @@ void updateTapeFollow()
   prevErr = error;
   prevTime = now;
 }
+
 
 
 
