@@ -19,8 +19,10 @@ void Ewok1Detect()
     ClawRotate(0);
     //PivotBack(0,800);
     //statecontrol = State_EdgeAlign1;
-    Pivot(0,500);
-    statecontrol = State_BridgeAlign1;
+    while(analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH){
+    Pivot(0,1);
+    }
+    statecontrol = State_Bridge1Align;
   }
 }
 

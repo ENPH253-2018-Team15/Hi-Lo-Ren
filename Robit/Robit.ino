@@ -25,8 +25,8 @@ uint16_t CLAW_LEFT = 285;
 uint16_t CLAW_UP_LEFT = 615;
 uint16_t CLAW_UP_RIGHT = 675;
 uint16_t CLAW_RIGHT = 970;
-const byte CLAW_SERVO_OPEN = 100;
-const byte CLAW_SERVO_CLOSED = 150;
+const byte CLAW_SERVO_OPEN = 115;
+const byte CLAW_SERVO_CLOSED = 165;
 const byte BRIDGE1_SERVO_OPEN = 2;
 const byte BRIDGE1_SERVO_CLOSED = 90;
 const byte BRIDGE2_SERVO_OPEN = 90;
@@ -233,18 +233,22 @@ void loop()
         if (left && right) {
           ReverseStraight(1);
         } else if (right) {
-          PivotBack(0, 1);
+          ZeroTurn(1, 1);
         } else if (left) {
-          PivotBack(1, 1);
+          ZeroTurn(0, 1);
         } else {
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          LCD.print("Edge Aligned");
+          delay(500);
+          Pivot(1,100);
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          delay(500);
           ReverseStraight(300);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           RCServo1.write(BRIDGE1_SERVO_OPEN);
-          delay(500);
+          delay(1000);
           DriveStraight(1000);
           statecontrol = State_Ewok2;
         }
