@@ -32,6 +32,7 @@ const byte BRIDGE1_SERVO_CLOSED = 90;
 const byte BRIDGE2_SERVO_OPEN = 90;
 const byte BRIDGE2_SERVO_CLOSED = 2;
 uint8_t MOTOR_BASE;
+uint8_t CLAW_SPEED = 190;
 volatile int32_t pos;
 uint16_t tenkhzread, onekhzread;
 int16_t leftSpeed, rightSpeed;
@@ -248,13 +249,27 @@ void loop()
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           RCServo1.write(BRIDGE1_SERVO_OPEN);
-          delay(1000);
-          DriveStraight(1000);
+          delay(1500);
+          DriveStraight(500);
+          FindTape(1);
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR); 
+          ClawRotate(1); 
+          delay(500);
           statecontrol = State_Ewok2;
         }
       } break;
     case State_Ewok2: {
+      while(analogRead(LEFT_LF_QRD)>ThreshTape.Value || analogRead(RIGHT_LF_QRD)>ThreshTape.Value){
         TapeFollow();
+      }
+      if (FRONT_BUMP){
+        motor.speed(LEFT_MOTOR,5/6 * MOTOR_BASE);
+        motor.speed(RIGHT_MOTOR,7/6 * MOTOR_BASE);
+      } else{
+        motor.speed(LEFT_MOTOR,8/7 * MOTOR_BASE);
+        motor.speed(RIGHT_MOTOR, MOTOR_BASE);
+      }
         Ewok2Detect();
       } break;
     case State_RightEdgeFollow: {

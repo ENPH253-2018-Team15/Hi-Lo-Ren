@@ -22,7 +22,7 @@ void Ewok1Detect()
     while(analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH){
     Pivot(0,1);
     }
-    statecontrol = State_Bridge1Align;
+    statecontrol = State_Bridge1Place;
   }
 }
 
