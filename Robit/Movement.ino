@@ -64,14 +64,14 @@ void FindTape(boolean direction) {
   uint32_t findtapebegin = millis();
   boolean switched = 0;
   while (analogRead(LEFT_LF_QRD) < ThreshTape.Value && analogRead(RIGHT_LF_QRD) < ThreshTape.Value) {
-    if (millis() - findtapebegin > 3000 && !switched) {
+    if (millis() - findtapebegin > 2000 && !switched) {
       direction = !direction;
       switched = 1;
     }
     if (direction) {
-      ZeroTurn(1, 1);
+      Pivot(1, 1);
     } else {
-      ZeroTurn(0, 1);
+      Pivot(0, 1);
     }
   }
 }

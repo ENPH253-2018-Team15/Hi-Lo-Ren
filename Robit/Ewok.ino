@@ -17,8 +17,10 @@ void Ewok1Detect()
     LCD.print("EWOK 1 DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
     ClawRotate(0);
-    PivotBack(0,800);
-    statecontrol = State_EdgeAlign1;
+    //PivotBack(0,800);
+    //statecontrol = State_EdgeAlign1;
+    Pivot(0,500);
+    statecontrol = State_BridgeAlign1;
   }
 }
 
