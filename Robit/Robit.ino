@@ -256,19 +256,20 @@ void loop()
           motor.stop(RIGHT_MOTOR); 
           ClawRotate(1); 
           delay(500);
+          timerbegin = millis();
           statecontrol = State_Ewok2;
         }
       } break;
     case State_Ewok2: {
-      while(analogRead(LEFT_LF_QRD)>ThreshTape.Value || analogRead(RIGHT_LF_QRD)>ThreshTape.Value){
+      while(millis() - timerbegin < 500){
         TapeFollow();
       }
       if (FRONT_BUMP){
-        motor.speed(LEFT_MOTOR,5/6 * MOTOR_BASE);
-        motor.speed(RIGHT_MOTOR,7/6 * MOTOR_BASE);
+        motor.speed(LEFT_MOTOR,MOTOR_BASE * 5/6);
+        motor.speed(RIGHT_MOTOR,MOTOR_BASE * 7/6);
       } else{
-        motor.speed(LEFT_MOTOR,8/7 * MOTOR_BASE);
-        motor.speed(RIGHT_MOTOR, MOTOR_BASE);
+        motor.speed(LEFT_MOTOR,MOTOR_BASE * 8/7);
+        motor.speed(RIGHT_MOTOR, MOTOR_BASE * 6/7);
       }
         Ewok2Detect();
       } break;
