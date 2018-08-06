@@ -281,8 +281,7 @@ void loop()
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(500);
-          ZeroTurn(1,50
-          );
+          ZeroTurn(1,50);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(500);
@@ -290,7 +289,18 @@ void loop()
         }
       } break;
     case State_Ewok2: {
-      DriveStraight(1);
+      if (FRONT_BUMP) {
+      	motor.speed(LEFT_MOTOR, MOTOR_BASE_LEFT * 5/6);
+      	motor.speed(RIGHT_MOTOR, MOTOR_BASE_RIGHT * 7/6);
+      }
+      else {
+      	motor.stop(LEFT_MOTOR);
+        motor.stop(RIGHT_MOTOR);
+        ReverseStraight(100);
+        motor.stop(LEFT_MOTOR);
+        motor.stop(RIGHT_MOTOR);
+        ZeroTurn(1, 50);
+      }
       Ewok2Detect();
       } break;
     case State_RightEdgeFollow: {
