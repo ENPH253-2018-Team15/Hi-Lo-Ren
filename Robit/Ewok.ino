@@ -17,12 +17,15 @@ void Ewok1Detect()
     LCD.print("EWOK 1 DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
     ClawRotate(0);
-    //PivotBack(0,800);
-    //statecontrol = State_EdgeAlign1;
+    PivotBack(0,500);
+    statecontrol = State_EdgeAlign1;
+    
+    /*
     while(analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH){
     Pivot(0,1);
     }
     statecontrol = State_Bridge1Place;
+    */
   }
 }
 
@@ -35,9 +38,15 @@ void Ewok2Detect()
     LCD.print("EWOK 2 DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
     ClawRotate(0);
-    ZeroTurn(0,500);
+    ZeroTurn(0,50);
     ReverseStraight(500);
-    FindTape(1);
+    ZeroTurn(1,500);
+    while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH){
+      DriveStraight(1);
+    }
+    while (analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH){
+      Pivot(0,1);
+    }
     IRBeacon();
     statecontrol = State_Ewok3;
   }

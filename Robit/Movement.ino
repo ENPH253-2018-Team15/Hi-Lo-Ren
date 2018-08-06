@@ -3,13 +3,13 @@ void ZeroTurn(boolean direction, unsigned long duration)
 {
   if (!direction)
   {
-    motor.speed(LEFT_MOTOR, -MOTOR_BASE);
-    motor.speed(RIGHT_MOTOR, MOTOR_BASE);
+    motor.speed(LEFT_MOTOR, -MOTOR_BASE_LEFT);
+    motor.speed(RIGHT_MOTOR, MOTOR_BASE_RIGHT);
   }
   else
   {
-    motor.speed(RIGHT_MOTOR, -MOTOR_BASE);
-    motor.speed(LEFT_MOTOR, MOTOR_BASE);
+    motor.speed(RIGHT_MOTOR, -MOTOR_BASE_RIGHT);
+    motor.speed(LEFT_MOTOR, MOTOR_BASE_LEFT);
   }
   delay(duration);
 }
@@ -20,12 +20,12 @@ void Pivot(boolean direction, unsigned long duration)
   if (!direction)
   {
     motor.stop(LEFT_MOTOR);
-    motor.speed(RIGHT_MOTOR, MOTOR_BASE);
+    motor.speed(RIGHT_MOTOR, MOTOR_BASE_RIGHT);
   }
   else
   {
     motor.stop(RIGHT_MOTOR);
-    motor.speed(LEFT_MOTOR, MOTOR_BASE);
+    motor.speed(LEFT_MOTOR, MOTOR_BASE_LEFT);
   }
   delay(duration);
 }
@@ -36,27 +36,27 @@ void PivotBack(boolean direction, unsigned long duration)
   if (!direction)
   {
     motor.stop(LEFT_MOTOR);
-    motor.speed(RIGHT_MOTOR, -MOTOR_BASE);
+    motor.speed(RIGHT_MOTOR, -MOTOR_BASE_RIGHT);
   }
   else
   {
     motor.stop(RIGHT_MOTOR);
-    motor.speed(LEFT_MOTOR, -MOTOR_BASE);
+    motor.speed(LEFT_MOTOR, -MOTOR_BASE_LEFT);
   }
   delay(duration);
 }
 
 void DriveStraight(unsigned long duration)
 {
-  motor.speed(LEFT_MOTOR, MOTOR_BASE);
-  motor.speed(RIGHT_MOTOR, MOTOR_BASE);
+  motor.speed(LEFT_MOTOR, MOTOR_BASE_LEFT);
+  motor.speed(RIGHT_MOTOR, MOTOR_BASE_RIGHT);
   delay(duration);
 }
 
 void ReverseStraight(unsigned long duration)
 {
-  motor.speed(LEFT_MOTOR, -MOTOR_BASE);
-  motor.speed(RIGHT_MOTOR, -MOTOR_BASE);
+  motor.speed(LEFT_MOTOR, -MOTOR_BASE_LEFT);
+  motor.speed(RIGHT_MOTOR, -MOTOR_BASE_RIGHT);
   delay(duration);
 }
 

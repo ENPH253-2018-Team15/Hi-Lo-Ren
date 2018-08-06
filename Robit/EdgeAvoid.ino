@@ -9,18 +9,18 @@ void EdgeFollow()
   boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
   if (!left && !right)
   {
-    leftSpeed = MOTOR_BASE;
-    rightSpeed = MOTOR_BASE * 2 / 4;
+    leftSpeed = MOTOR_BASE_LEFT;
+    rightSpeed = MOTOR_BASE_RIGHT * 2 / 4;
   }
   else if (left && !right)
   {
-    leftSpeed = MOTOR_BASE * 7 / 4;
-    rightSpeed = MOTOR_BASE * 1 / 4;
+    leftSpeed = MOTOR_BASE_LEFT * 7 / 4;
+    rightSpeed = MOTOR_BASE_RIGHT * 1 / 4;
   }
   else if (!left && right)
   {
-    leftSpeed = MOTOR_BASE * 1 / 4;
-    rightSpeed = MOTOR_BASE * 7 / 4;
+    leftSpeed = MOTOR_BASE_LEFT * 1 / 4;
+    rightSpeed = MOTOR_BASE_RIGHT * 7 / 4;
   }
   else
   {
@@ -65,18 +65,18 @@ void EdgeAvoid()
   boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
   if (!left && !right)
   {
-    leftSpeed = MOTOR_BASE;
-    rightSpeed = MOTOR_BASE * 3 / 4;
+    leftSpeed = MOTOR_BASE_LEFT;
+    rightSpeed = MOTOR_BASE_RIGHT * 3 / 4;
   }
   else if (left && !right)
   {
-    leftSpeed = MOTOR_BASE * 7 / 4;
-    rightSpeed = MOTOR_BASE * 1 / 4;
+    leftSpeed = MOTOR_BASE_LEFT * 7 / 4;
+    rightSpeed = MOTOR_BASE_RIGHT * 1 / 4;
   }
   else if (!left && right)
   {
-    leftSpeed = MOTOR_BASE * 1 / 4;
-    rightSpeed = MOTOR_BASE * 7 / 4;
+    leftSpeed = MOTOR_BASE_LEFT * 1 / 4;
+    rightSpeed = MOTOR_BASE_RIGHT * 7 / 4;
   }
   else
   {

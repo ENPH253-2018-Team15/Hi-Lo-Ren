@@ -51,8 +51,8 @@ void TapeFollow()
 
   }
   updateTapeFollow();
-  leftSpeed = MOTOR_BASE + Out;
-  rightSpeed = MOTOR_BASE - Out;
+  leftSpeed = MOTOR_BASE_LEFT + Out;
+  rightSpeed = MOTOR_BASE_RIGHT - Out;
   if (rightSpeed > MotorMax.Value)
   {
     rightSpeed = MotorMax.Value;
@@ -91,8 +91,47 @@ void updateTapeFollow()
   prevTime = now;
 }
 
-
-
+// Avoids edges using QRDs
+void TapeFollowEdge()
+{
+  LCD.print("RS:");
+  LCD.print(analogRead(RIGHT_EDGE_QRD));
+  boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
+  if (!right)
+  {
+    leftSpeed = MOTOR_BASE_LEFT * 3/4;
+    rightSpeed = MOTOR_BASE_RIGHT * 5/4;
+  }
+  else
+  {
+    leftSpeed = MOTOR_BASE_LEFT * 5/4;
+    rightSpeed = MOTOR_BASE_RIGHT * 3/4;
+  }
+  if (rightSpeed > MotorMax.Value)
+  {
+    rightSpeed = MotorMax.Value;
+  }
+  else if (rightSpeed < 0)
+  {
+    rightSpeed = 0;
+  }
+  if (leftSpeed > MotorMax.Value)
+  {
+    leftSpeed = MotorMax.Value;
+  }
+  else if (leftSpeed < 0)
+  {
+    leftSpeed = 0;
+  }
+  LCD.setCursor(0, 1);
+  motor.speed(LEFT_MOTOR, leftSpeed);
+  motor.speed(RIGHT_MOTOR, rightSpeed);
+  LCD.print("LM:");
+  LCD.print(leftSpeed);
+  LCD.setCursor(8, 1);
+  LCD.print("RM:");
+  LCD.print(rightSpeed);
+}
 
 
 

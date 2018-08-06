@@ -31,7 +31,8 @@ const byte BRIDGE1_SERVO_OPEN = 2;
 const byte BRIDGE1_SERVO_CLOSED = 90;
 const byte BRIDGE2_SERVO_OPEN = 90;
 const byte BRIDGE2_SERVO_CLOSED = 2;
-uint8_t MOTOR_BASE;
+uint8_t MOTOR_BASE_LEFT;
+uint8_t MOTOR_BASE_RIGHT;
 uint8_t CLAW_SPEED = 190;
 volatile int32_t pos;
 uint16_t tenkhzread, onekhzread;
@@ -60,7 +61,8 @@ enum RobotState
   State_Testing1,
   State_Testing2,
   State_Testing3,
-  State_Testing4
+  State_Testing4,
+  State_Testing5
 };
 
 RobotState statecontrol;
@@ -108,12 +110,15 @@ MenuItem TestTime1 = MenuItem("TestTime1");
 MenuItem TestTime2 = MenuItem("TestTime2");
 MenuItem TestTime3 = MenuItem("TestTime3");
 MenuItem TestTime4 = MenuItem("TestTime4");
+MenuItem LeftMotorOffset = MenuItem("LeftOffset");
+MenuItem RightMotorOffset = MenuItem("RightOffset");
 MenuItem menuItems[] =
 {
   MotorMax, MotorBase, ProportionalGain, DerivativeGain, IntegralGain,
   ThreshTape, ThreshLEdge, ThreshREdge,
   RunScissor, RunLeft, RunRight, Timer, Servo0, Servo1, Servo2, Claw,
-  StartState, TestTime0, TestTime1, TestTime2, TestTime3, TestTime4
+  StartState, TestTime0, TestTime1, TestTime2, TestTime3, TestTime4,
+  LeftMotorOffset, RightMotorOffset
 };
 
 void setup()
@@ -145,7 +150,8 @@ void setup()
   testtime2 = (uint32_t) TestTime2.Value * 100;
   testtime3 = (uint32_t) TestTime3.Value * 100;
   testtime4 = (uint32_t) TestTime4.Value * 100;
-  MOTOR_BASE = MotorBase.Value;
+  MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value;
+  MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value;
   ClawRotate(1);
   RCServo0.write(CLAW_SERVO_OPEN);
   delay(1000);
@@ -178,6 +184,7 @@ void loop()
         if (left && right) {
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
+          delay(500);
           statecontrol = State_EdgeAlign2;
         } else if (left) {
           Pivot(0, 1);
@@ -200,10 +207,14 @@ void loop()
         } else if (left) {
           PivotBack(1, 1);
         } else {
+          ReverseStraight(400);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
+          delay(500);
           LCD.print("Edge Aligned");
-          ZeroTurn(0, 1000);
+          while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH) {
+            ZeroTurn(0, 1);
+          }
           statecontrol = State_Bridge1Align;
         }
       } break;
@@ -216,6 +227,7 @@ void loop()
         if (left && right) {
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
+          delay(500);
           statecontrol = State_Bridge1Place;
         } else if (left) {
           Pivot(0, 1);
@@ -241,43 +253,51 @@ void loop()
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(500);
-          Pivot(1,100);
+          /*
+            Pivot(1,100);
+            motor.stop(LEFT_MOTOR);
+            motor.stop(RIGHT_MOTOR);
+            delay(500);
+          */
+          ReverseStraight(250);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(500);
-          ReverseStraight(300);
-          motor.stop(LEFT_MOTOR);
-          motor.stop(RIGHT_MOTOR);
           RCServo1.write(BRIDGE1_SERVO_OPEN);
-          delay(1500);
+          delay(2000);
           DriveStraight(500);
           FindTape(1);
           motor.stop(LEFT_MOTOR);
-          motor.stop(RIGHT_MOTOR); 
-          ClawRotate(1); 
-          delay(500);
+          motor.stop(RIGHT_MOTOR);
+          ClawRotate(1);
           timerbegin = millis();
+          while (millis() - timerbegin < 500) {
+            TapeFollow();
+          }
+          timerbegin = millis();
+          while (millis() - timerbegin < 1000) {
+            TapeFollowEdge();
+          }
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          delay(500);
+          ZeroTurn(1,50
+          );
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          delay(500);
           statecontrol = State_Ewok2;
         }
       } break;
     case State_Ewok2: {
-      while(millis() - timerbegin < 500){
-        TapeFollow();
-      }
-      if (FRONT_BUMP){
-        motor.speed(LEFT_MOTOR,MOTOR_BASE * 5/6);
-        motor.speed(RIGHT_MOTOR,MOTOR_BASE * 7/6);
-      } else{
-        motor.speed(LEFT_MOTOR,MOTOR_BASE * 8/7);
-        motor.speed(RIGHT_MOTOR, MOTOR_BASE * 6/7);
-      }
-        Ewok2Detect();
+      DriveStraight(1);
+      Ewok2Detect();
       } break;
     case State_RightEdgeFollow: {
         EdgeFollow();
-        if (!FRONT_BUMP){
-          motor.speed(LEFT_MOTOR,-MOTOR_BASE/2);
-          motor.speed(RIGHT_MOTOR,-MOTOR_BASE);
+        if (!FRONT_BUMP) {
+          motor.speed(LEFT_MOTOR, -MOTOR_BASE_LEFT / 2);
+          motor.speed(RIGHT_MOTOR, -MOTOR_BASE_RIGHT);
           delay(300);
         }
       } break;
@@ -342,7 +362,7 @@ void loop()
       } break;
     case State_Testing0: {
         LCD.print(analogRead(CLAW_POT));
-        LCD.setCursor(0,1);
+        LCD.setCursor(0, 1);
         LCD.print(analogRead(EWOK_DETECTOR));
         delay(500);
       } break;
@@ -370,20 +390,26 @@ void loop()
         LCD.print(analogRead(LEFT_LF_QRD));
         LCD.print("/");
         LCD.print(analogRead(RIGHT_LF_QRD));
-        LCD.setCursor(0,1);
+        LCD.setCursor(0, 1);
         LCD.print(analogRead(LEFT_EDGE_QRD));
         LCD.print("/");
         LCD.print(analogRead(RIGHT_EDGE_QRD));
       } break;
     case State_Testing3: {
         LCD.print(analogRead(ONE_KHZ_PIN));
-        LCD.setCursor(0,1);
+        LCD.setCursor(0, 1);
         LCD.print(analogRead(TEN_KHZ_PIN));
         delay(500);
       } break;
     case State_Testing4: {
         LCD.print("DANCE!");
         Dance();
+      } break;
+    case State_Testing5: {
+        DriveStraight(2000);
+        delay(2000);
+        ReverseStraight(2000);
+        delay(2000);
       } break;
   }
 }
