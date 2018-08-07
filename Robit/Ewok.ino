@@ -62,6 +62,7 @@ void Ewok3Detect()
     LCD.clear();
     LCD.print("EWOK3 DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
+    delay(500);
     ClawRotate(0);
     while(analogRead(LEFT_EDGE_QRD)<LEFT_EDGE_THRESH && analogRead(RIGHT_EDGE_QRD)<RIGHT_EDGE_THRESH){
           TapeFollow();

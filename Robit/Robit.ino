@@ -260,22 +260,22 @@ void loop()
         } else {
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          delay(1000);
+          delay(500);
           /*
             Pivot(1,100);
             motor.stop(LEFT_MOTOR);
             motor.stop(RIGHT_MOTOR);
             delay(500);
           */
-         //ReverseStraight(300);
+          //ReverseStraight(300);
           ReverseStraight(275);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          delay(1000);
+          delay(500);
           RCServo1.write(BRIDGE1_SERVO_OPEN);
-          delay(2000);
+          delay(1000);
           DriveStraight(500);
-          FindTape(1,1);
+          FindTape(1, 0);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           //ClawRotate(1);
@@ -301,9 +301,9 @@ void loop()
           motor.stop(RIGHT_MOTOR);
           RCServo1.write(BRIDGE1_SERVO_CLOSED);
           delay(1000);
-          Pivot(0,500);
+          Pivot(0, 500);
           ReverseStraight(200);
-          FindTape(0,0);
+          FindTape(0, 0);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           IRBeacon();
@@ -326,18 +326,18 @@ void loop()
         Ewok2Detect();
       } break;
     case State_Archway: {
-       MOTOR_BASE_LEFT = 100;
-       MOTOR_BASE_RIGHT = 100;
-       timerbegin = millis();
-       while (millis() - timerbegin < 7000 || ((analogRead(LEFT_LF_QRD) < ThreshTape.Value && analogRead(RIGHT_LF_QRD) < ThreshTape.Value))){
-        TapeFollow();
-       }
-       motor.stop(LEFT_MOTOR);
-       motor.stop(RIGHT_MOTOR);
-       ClawRotate(-1);
-       RCServo1.write(BRIDGE1_SERVO_OPEN);
-       delay(500);
-       statecontrol = State_Ewok3;
+        MOTOR_BASE_LEFT = 100;
+        MOTOR_BASE_RIGHT = 100;
+        timerbegin = millis();
+        while (millis() - timerbegin < 7000 || ((analogRead(LEFT_LF_QRD) < ThreshTape.Value && analogRead(RIGHT_LF_QRD) < ThreshTape.Value))) {
+          TapeFollow();
+        }
+        motor.stop(LEFT_MOTOR);
+        motor.stop(RIGHT_MOTOR);
+        ClawRotate(-1);
+        RCServo1.write(BRIDGE1_SERVO_OPEN);
+        delay(500);
+        statecontrol = State_Ewok3;
       } break;
     case State_Ewok3: {
         TapeFollow();
@@ -380,7 +380,7 @@ void loop()
           motor.stop(RIGHT_MOTOR);
           delay(500);
           LCD.print("Edge Aligned");
-          
+
           ZeroTurn(1, 700);
           /*
             while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH) {
@@ -431,14 +431,19 @@ void loop()
           motor.stop(RIGHT_MOTOR);
           RCServo2.write(BRIDGE2_SERVO_OPEN);
           delay(500);
-          ReverseStraight(200);
+          ReverseStraight(300);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(500);
-          DriveStraight(1000);
+          DriveStraight(3000);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          delay(10000);
+          delay(1000);
+          Pivot(1,testtime0);
+          while(true){
+            motor.stop(LEFT_MOTOR);
+            motor.stop(RIGHT_MOTOR);
+          }
           statecontrol = State_Ewok4;
         }
       } break;
@@ -504,14 +509,14 @@ void loop()
         delay(2000);
       } break;
     case State_Testing6: {
-      ZeroTurn(0,testtime0);
-      motor.stop(LEFT_MOTOR);
-      motor.stop(RIGHT_MOTOR);
-      delay(1000);
-      ZeroTurn(1,testtime0);
-      motor.stop(LEFT_MOTOR);
-      motor.stop(RIGHT_MOTOR);
-      delay(1000);
+        ZeroTurn(0, testtime0);
+        motor.stop(LEFT_MOTOR);
+        motor.stop(RIGHT_MOTOR);
+        delay(1000);
+        ZeroTurn(1, testtime0);
+        motor.stop(LEFT_MOTOR);
+        motor.stop(RIGHT_MOTOR);
+        delay(1000);
       } break;
   }
 }
