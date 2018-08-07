@@ -3,7 +3,8 @@ void ClawRotate(int8_t newpos) {
     if (analogRead(CLAW_POT) > CLAW_LEFT) {
       while (analogRead(CLAW_POT) > CLAW_LEFT) {
         motor.speed(CLAW_MOTOR, -CLAW_SPEED);
-        ClawServo();
+        RCServo0.write(CLAW_SERVO_CLOSED);
+        //ClawServo();
       }
       motor.stop(CLAW_MOTOR);
     }
@@ -11,12 +12,14 @@ void ClawRotate(int8_t newpos) {
     if (analogRead(CLAW_POT) > CLAW_UP_RIGHT) {
       while (analogRead(CLAW_POT) > CLAW_UP_RIGHT) {
         motor.speed(CLAW_MOTOR, -CLAW_SPEED);
-        ClawServo();
+        RCServo0.write(CLAW_SERVO_CLOSED);
+        //ClawServo();
       }
     } else if (analogRead(CLAW_POT) < CLAW_UP_LEFT) {
       while (analogRead(CLAW_POT) < CLAW_UP_LEFT) {
         motor.speed(CLAW_MOTOR, CLAW_SPEED);
-        ClawServo();
+        RCServo0.write(CLAW_SERVO_CLOSED);
+        //ClawServo();
       }
     }
     motor.stop(CLAW_MOTOR);
@@ -25,7 +28,8 @@ void ClawRotate(int8_t newpos) {
     if (analogRead(CLAW_POT) < CLAW_RIGHT) {
       while (analogRead(CLAW_POT) < CLAW_RIGHT) {
         motor.speed(CLAW_MOTOR, CLAW_SPEED);
-        ClawServo();
+        RCServo0.write(CLAW_SERVO_CLOSED);
+        //ClawServo();
       }
     }
     motor.stop(CLAW_MOTOR);

@@ -37,7 +37,7 @@ void TapeFollow()
       if (offtapetimer < 500) {
         error = 5;
       } else {
-        FindTape(0);
+        FindTape(0,1);
       }
     }
     else
@@ -45,7 +45,7 @@ void TapeFollow()
       if (offtapetimer < 500) {
         error = -5;
       } else {
-        FindTape(1);
+        FindTape(1,1);
       }
     }
 
@@ -133,6 +133,58 @@ void TapeFollowEdge()
   LCD.print(rightSpeed);
 }
 
-
-
-
+// Follows tape and edge
+void EdgeTapeFollow()
+{
+ LCD.print("LS:");
+  LCD.print(analogRead(LEFT_EDGE_QRD));
+  LCD.setCursor(8, 0);
+  LCD.print("RS:");
+  LCD.print(analogRead(RIGHT_EDGE_QRD));
+  boolean left = analogRead(LEFT_EDGE_QRD) > ThreshTape.Value;
+  boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
+  if (!left && !right)
+  {
+    leftSpeed = MOTOR_BASE_LEFT * 6 / 4;
+    rightSpeed = MOTOR_BASE_RIGHT * 2 / 4;
+  }
+  else if (left && !right)
+  {
+    leftSpeed = MOTOR_BASE_LEFT * 5 / 4;
+    rightSpeed = MOTOR_BASE_RIGHT * 3 / 4;
+  }
+  else if (!left && right)
+  {
+    leftSpeed = MOTOR_BASE_LEFT * 2 / 4;
+    rightSpeed = MOTOR_BASE_RIGHT * 6 / 4;
+  }
+  else
+  {
+    leftSpeed = MOTOR_BASE_LEFT;
+    rightSpeed = MOTOR_BASE_RIGHT;
+  }
+  if (rightSpeed > MotorMax.Value)
+  {
+    rightSpeed = MotorMax.Value;
+  }
+  else if (rightSpeed < 0)
+  {
+    rightSpeed = 0;
+  }
+  if (leftSpeed > MotorMax.Value)
+  {
+    leftSpeed = MotorMax.Value;
+  }
+  else if (leftSpeed < 0)
+  {
+    leftSpeed = 0;
+  }
+  LCD.setCursor(0, 1);
+  motor.speed(LEFT_MOTOR, leftSpeed);
+  motor.speed(RIGHT_MOTOR, rightSpeed);
+  LCD.print("LM:");
+  LCD.print(leftSpeed);
+  LCD.setCursor(8, 1);
+  LCD.print("RM:");
+  LCD.print(rightSpeed);
+}

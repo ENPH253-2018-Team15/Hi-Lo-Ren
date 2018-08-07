@@ -21,6 +21,8 @@ const byte RIGHT_US_TRIG = 8;
 const byte LEFT_US_ECHO = 7;
 const byte RIGHT_US_ECHO = 6;
 uint16_t LEFT_EDGE_THRESH, RIGHT_EDGE_THRESH;
+uint16_t ONE_KHZ_THRESH = 10;
+uint16_t TEN_KHZ_THRESH = 50;
 uint16_t CLAW_LEFT = 285;
 uint16_t CLAW_UP_LEFT = 615;
 uint16_t CLAW_UP_RIGHT = 675;
@@ -49,7 +51,7 @@ enum RobotState
   State_Bridge1Align,
   State_Bridge1Place,
   State_Ewok2,
-  State_RightEdgeFollow,
+  State_Archway,
   State_Ewok3,
   State_Zipline1,
   State_Bridge2Align,
@@ -62,7 +64,7 @@ enum RobotState
   State_Testing2,
   State_Testing3,
   State_Testing4,
-  State_Testing5
+  State_Testing5,
 };
 
 RobotState statecontrol;
@@ -207,14 +209,18 @@ void loop()
         } else if (left) {
           PivotBack(1, 1);
         } else {
-          ReverseStraight(400);
+          //ReverseStraight(100);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(500);
           LCD.print("Edge Aligned");
-          while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH) {
+          //ZeroTurn(0, 1000);
+          ZeroTurn(0, 900);
+          /*
+            while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH) {
             ZeroTurn(0, 1);
-          }
+            }
+          */
           statecontrol = State_Bridge1Align;
         }
       } break;
@@ -252,71 +258,93 @@ void loop()
         } else {
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          delay(500);
+          delay(1000);
           /*
             Pivot(1,100);
             motor.stop(LEFT_MOTOR);
             motor.stop(RIGHT_MOTOR);
             delay(500);
           */
-          ReverseStraight(250);
+         //ReverseStraight(300);
+          ReverseStraight(275);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          delay(500);
+          delay(1000);
           RCServo1.write(BRIDGE1_SERVO_OPEN);
           delay(2000);
           DriveStraight(500);
-          FindTape(1);
+          FindTape(1,1);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          ClawRotate(1);
+          //ClawRotate(1);
           timerbegin = millis();
-          while (millis() - timerbegin < 500) {
+          while (millis() - timerbegin < 750) {
             TapeFollow();
           }
-          timerbegin = millis();
-          while (millis() - timerbegin < 1000) {
+          DriveStraight(300);
+          /*
+            timerbegin = millis();
+            while (millis() - timerbegin < 1000) {
             TapeFollowEdge();
+            }
+            motor.stop(LEFT_MOTOR);
+            motor.stop(RIGHT_MOTOR);
+            delay(500);
+          */
+          timerbegin = millis();
+          while (millis() - timerbegin < 2150) {
+            EdgeTapeFollow();
           }
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          delay(500);
-          ZeroTurn(1,50);
+          RCServo1.write(BRIDGE1_SERVO_CLOSED);
+          delay(1000);
+          Pivot(0,500);
+          ReverseStraight(200);
+          FindTape(0,0);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          delay(500);
-          statecontrol = State_Ewok2;
+          IRBeacon();
         }
       } break;
     case State_Ewok2: {
-      if (FRONT_BUMP) {
-      	motor.speed(LEFT_MOTOR, MOTOR_BASE_LEFT * 5/6);
-      	motor.speed(RIGHT_MOTOR, MOTOR_BASE_RIGHT * 7/6);
-      }
-      else {
-      	motor.stop(LEFT_MOTOR);
-        motor.stop(RIGHT_MOTOR);
-        ReverseStraight(100);
-        motor.stop(LEFT_MOTOR);
-        motor.stop(RIGHT_MOTOR);
-        ZeroTurn(1, 50);
-      }
-      Ewok2Detect();
-      } break;
-    case State_RightEdgeFollow: {
-        EdgeFollow();
-        if (!FRONT_BUMP) {
-          motor.speed(LEFT_MOTOR, -MOTOR_BASE_LEFT / 2);
-          motor.speed(RIGHT_MOTOR, -MOTOR_BASE_RIGHT);
-          delay(300);
+        if (FRONT_BUMP) {
+          DriveStraight(1);
+          //motor.speed(LEFT_MOTOR, MOTOR_BASE_LEFT * 8/6);
+          //motor.speed(RIGHT_MOTOR, MOTOR_BASE_RIGHT * 4/6);
         }
+        else {
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          ReverseStraight(100);
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          ZeroTurn(1, 50);
+        }
+        Ewok2Detect();
+      } break;
+    case State_Archway: {
+       MOTOR_BASE_LEFT = 100;
+       MOTOR_BASE_RIGHT = 100;
+       timerbegin = millis();
+       while (millis() - timerbegin < 7000 || ((analogRead(LEFT_LF_QRD) < ThreshTape.Value && analogRead(RIGHT_LF_QRD) < ThreshTape.Value))){
+        TapeFollow();
+       }
+       motor.stop(LEFT_MOTOR);
+       motor.stop(RIGHT_MOTOR);
+       ClawRotate(-1);
+       RCServo1.write(BRIDGE1_SERVO_OPEN);
+       delay(500);
+       statecontrol = State_Ewok3;
       } break;
     case State_Ewok3: {
         TapeFollow();
         Ewok3Detect();
       } break;
     case State_Zipline1: {
-        Zipline1Detect();
+        while(analogRead(LEFT_EDGE_QRD)<LEFT_EDGE_THRESH && analogRead(RIGHT_EDGE_QRD)<RIGHT_EDGE_THRESH){
+          
+        }
       } break;
     case State_Bridge2Align: {
         boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
