@@ -1,5 +1,5 @@
 boolean EwokDetected() {
-  if (analogRead(EWOK_DETECTOR) < 10) {
+  if (analogRead(EWOK_DETECTOR) < 20) {
     motor.stop(LEFT_MOTOR);
     motor.stop(RIGHT_MOTOR);
     return true;

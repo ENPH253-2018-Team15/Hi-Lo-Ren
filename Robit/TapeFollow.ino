@@ -37,7 +37,7 @@ void TapeFollow()
       if (offtapetimer < 500) {
         error = 5;
       } else {
-        FindTape(0,1);
+        FindTape(0,2000);
       }
     }
     else
@@ -45,7 +45,7 @@ void TapeFollow()
       if (offtapetimer < 500) {
         error = -5;
       } else {
-        FindTape(1,1);
+        FindTape(1,2000);
       }
     }
 

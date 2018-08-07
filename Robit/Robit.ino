@@ -275,7 +275,7 @@ void loop()
           RCServo1.write(BRIDGE1_SERVO_OPEN);
           delay(1000);
           DriveStraight(500);
-          FindTape(1, 0);
+          FindTape(1, 10000);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           //ClawRotate(1);
@@ -303,7 +303,7 @@ void loop()
           delay(1000);
           Pivot(0, 500);
           ReverseStraight(200);
-          FindTape(0, 0);
+          FindTape(0, 2000);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           IRBeacon();
@@ -430,15 +430,19 @@ void loop()
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           RCServo2.write(BRIDGE2_SERVO_OPEN);
-          delay(500);
-          ReverseStraight(300);
-          motor.stop(LEFT_MOTOR);
-          motor.stop(RIGHT_MOTOR);
-          delay(500);
-          DriveStraight(3000);
-          motor.stop(LEFT_MOTOR);
-          motor.stop(RIGHT_MOTOR);
           delay(1000);
+          ReverseStraight(500);
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          delay(500);
+          DriveStraight(1000);
+          FindTape(0,1000);
+          while(analogRead(LEFT_LF_QRD) > ThreshTape.Value || analogRead(LEFT_LF_QRD) > ThreshTape.Value){
+            TapeFollow();
+          }
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          delay(5000);
           Pivot(1,testtime0);
           while(true){
             motor.stop(LEFT_MOTOR);

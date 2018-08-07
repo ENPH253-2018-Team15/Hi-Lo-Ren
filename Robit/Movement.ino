@@ -60,16 +60,14 @@ void ReverseStraight(unsigned long duration)
   delay(duration);
 }
 
-void FindTape(boolean direction, boolean switchdir) {
+void FindTape(boolean direction, uint32_t switchtime) {
   uint32_t findtapebegin = millis();
   boolean switched = 0;
   while (analogRead(LEFT_LF_QRD) < ThreshTape.Value && analogRead(RIGHT_LF_QRD) < ThreshTape.Value) {
-    if (switchdir) {
-      if (millis() - findtapebegin > 2000 && !switched) {
+      if (millis() - findtapebegin > switchtime && !switched) {
         direction = !direction;
         switched = 1;
       }
-    }
     if (direction) {
       Pivot(1, 1);
     } else {
