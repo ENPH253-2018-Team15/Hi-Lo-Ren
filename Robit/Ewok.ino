@@ -13,6 +13,7 @@ void Ewok1Detect()
   if (EwokDetected()) {
     motor.stop(LEFT_MOTOR);
     motor.stop(RIGHT_MOTOR);
+    delay(500);
     LCD.clear();
     LCD.print("EWOK 1 DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
@@ -57,12 +58,17 @@ void Ewok3Detect()
   if (EwokDetected()) {
     motor.stop(LEFT_MOTOR);
     motor.stop(RIGHT_MOTOR);
+    delay(500);
     LCD.clear();
     LCD.print("EWOK3 DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
     ClawRotate(0);
-    delay(20000);
-    statecontrol = State_Zipline1;
+    while(analogRead(LEFT_EDGE_QRD)<LEFT_EDGE_THRESH && analogRead(RIGHT_EDGE_QRD)<RIGHT_EDGE_THRESH){
+          TapeFollow();
+    }
+    MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value;
+    MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value;
+    statecontrol = State_Edge2Align1;
   }
 }
 
