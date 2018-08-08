@@ -66,7 +66,7 @@ void EdgeAvoid()
   if (!left && !right)
   {
     leftSpeed = MOTOR_BASE_LEFT;
-    rightSpeed = MOTOR_BASE_RIGHT ;//* 7 / 8;
+    rightSpeed = MOTOR_BASE_RIGHT* 7 / 8;
   }
   else if (left && !right)
   {
