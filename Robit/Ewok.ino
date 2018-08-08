@@ -1,5 +1,5 @@
 boolean EwokDetected() {
-  if (analogRead(EWOK_DETECTOR) < 50) {
+  if (analogRead(EWOK_DETECTOR) < 15) {
     motor.stop(LEFT_MOTOR);
     motor.stop(RIGHT_MOTOR);
     return true;
@@ -19,14 +19,14 @@ void Ewok1Detect()
     LCD.print("EWOK 1 DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
     ClawRotate(0);
-    PivotBack(0,500);
+    PivotBack(0, 500);
     statecontrol = State_EdgeAlign1;
-    
+
     /*
-    while(analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH){
-    Pivot(0,1);
-    }
-    statecontrol = State_Bridge1Place;
+      while(analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH){
+      Pivot(0,1);
+      }
+      statecontrol = State_Bridge1Place;
     */
   }
 }
@@ -40,14 +40,14 @@ void Ewok2Detect()
     LCD.print("EWOK 2 DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
     ClawRotate(0);
-    ZeroTurn(0,50);
+    ZeroTurn(0, 50);
     ReverseStraight(500);
-    ZeroTurn(1,500);
-    while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH){
+    ZeroTurn(1, 500);
+    while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH) {
       DriveStraight(1);
     }
-    while (analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH){
-      Pivot(0,1);
+    while (analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH) {
+      Pivot(0, 1);
     }
     IRBeacon();
     statecontrol = State_Ewok3;
@@ -65,8 +65,8 @@ void Ewok3Detect()
     RCServo0.write(CLAW_SERVO_CLOSED);
     delay(500);
     ClawRotate(0);
-    while(analogRead(LEFT_EDGE_QRD)<LEFT_EDGE_THRESH && analogRead(RIGHT_EDGE_QRD)<RIGHT_EDGE_THRESH){
-          TapeFollow();
+    while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH && analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_THRESH) {
+      TapeFollow();
     }
     MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value;
     MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value;
@@ -77,7 +77,7 @@ void Ewok3Detect()
 void Ewok4Detect()
 {
   if (EwokDetected()) {
-  motor.stop(LEFT_MOTOR);
+    motor.stop(LEFT_MOTOR);
     motor.stop(RIGHT_MOTOR);
     LCD.clear();
     LCD.print("EWOK4 DETECTED");
@@ -88,11 +88,17 @@ void Ewok4Detect()
 }
 void ChewbaccaDetect()
 {
-  motor.stop(LEFT_MOTOR);
-  motor.stop(RIGHT_MOTOR);
-  LCD.clear();
-  LCD.print("CHEWIE DETECTED");
-  RCServo0.write(CLAW_SERVO_CLOSED);
-  ClawRotate(0);
-  statecontrol = State_Zipline2;
+  if (EwokDetected()) {
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+    LCD.clear();
+    LCD.print("CHEWIE DETECTED");
+    RCServo0.write(CLAW_SERVO_CLOSED);
+    ClawRotate(0);
+    while(true){
+      motor.stop(LEFT_MOTOR);
+      motor.stop(RIGHT_MOTOR);
+    }
+    statecontrol = State_Zipline2;
+  }
 }

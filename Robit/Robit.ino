@@ -44,7 +44,7 @@ int16_t leftSpeed, rightSpeed;
 double error, prevErr, Out, errSum;
 volatile boolean offtape;
 volatile uint32_t prevTime, nextencode, timer, timerbegin, offtapebegin, offtapetimer;
-uint32_t testtime0, testtime1, testtime2, testtime3, testtime4;
+uint32_t testtime0, testtime1, testtime2, testtime3, testtime4, testtime5;
 enum RobotState
 {
   State_Begin,
@@ -117,6 +117,7 @@ MenuItem TestTime1 = MenuItem("TestTime1");
 MenuItem TestTime2 = MenuItem("TestTime2");
 MenuItem TestTime3 = MenuItem("TestTime3");
 MenuItem TestTime4 = MenuItem("TestTime4");
+MenuItem TestTime5 = MenuItem("TestTime5");
 MenuItem LeftMotorOffset = MenuItem("LeftOffset");
 MenuItem RightMotorOffset = MenuItem("RightOffset");
 MenuItem menuItems[] =
@@ -124,7 +125,7 @@ MenuItem menuItems[] =
   MotorMax, MotorBase, ProportionalGain, DerivativeGain, IntegralGain,
   ThreshTape, ThreshLEdge, ThreshREdge,
   RunScissor, RunLeft, RunRight, Timer, Servo0, Servo1, Servo2, Claw,
-  StartState, TestTime0, TestTime1, TestTime2, TestTime3, TestTime4,
+  StartState, TestTime0, TestTime1, TestTime2, TestTime3, TestTime4, TestTime5,
   LeftMotorOffset, RightMotorOffset
 };
 
@@ -157,6 +158,7 @@ void setup()
   testtime2 = (uint32_t) TestTime2.Value * 100;
   testtime3 = (uint32_t) TestTime3.Value * 100;
   testtime4 = (uint32_t) TestTime4.Value * 100;
+  testtime5 = (uint32_t) TestTime5.Value * 100;
   MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value;
   MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value;
   ClawRotate(1);
@@ -179,14 +181,14 @@ void loop()
   switch (statecontrol)
   {
     case State_Begin: {
-      timerbegin = millis();
-      while (millis() - timerbegin < 6750) {
-        TapeFollow();
+        timerbegin = millis();
+        while (millis() - timerbegin < 6750) {
+          TapeFollow();
+        }
+        MOTOR_BASE_LEFT = 100;
+        MOTOR_BASE_RIGHT = 100;
+        statecontrol = State_Ewok1;
       }
-      MOTOR_BASE_LEFT = 100;
-      MOTOR_BASE_RIGHT = 100;
-      statecontrol = State_Ewok1;
-    }
     case State_Ewok1: {
         TapeFollow();
         Ewok1Detect();
@@ -306,17 +308,26 @@ void loop()
             delay(500);
           */
           timerbegin = millis();
-          while (millis() - timerbegin < testtime0) {
+          while (millis() - timerbegin < 2000) {
             //2400
+            EdgeTapeFollow();
+          }
+          while (!ArchDetect() || analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_THRESH) {
+            EdgeTapeFollow();
+          }
+          timerbegin = millis();
+          while (millis() - timerbegin < 200) {
             EdgeTapeFollow();
           }
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           RCServo1.write(BRIDGE1_SERVO_CLOSED);
           delay(1000);
-          Pivot(0, testtime1); //1500
-          ReverseStraight(testtime2); // 400
-          FindTape(0, 2000);
+          //Pivot(0, testtime1); //1500
+          //ReverseStraight(testtime2); // 400
+          Pivot(0,1500);
+          ReverseStraight(300);
+          FindTape(0, 10000);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           IRBeacon();
@@ -344,7 +355,7 @@ void loop()
         MOTOR_BASE_RIGHT = 100;
         timerbegin = millis();
         offtape = 0;
-        FindTape(1,500);
+        FindTape(1, 500);
         while (millis() - timerbegin < 7000 || ((analogRead(LEFT_LF_QRD) < ThreshTape.Value && analogRead(RIGHT_LF_QRD) < ThreshTape.Value))) {
           TapeFollow();
         }
@@ -439,6 +450,7 @@ void loop()
         } else if (left) {
           PivotBack(1, 1);
         } else {
+          RCServo1.write(BRIDGE1_SERVO_OPEN);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(1000);
@@ -451,32 +463,34 @@ void loop()
           ReverseStraight(500);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
+          RCServo1.write(BRIDGE1_SERVO_CLOSED);
+          RCServo2.write(BRIDGE2_SERVO_CLOSED);
           delay(500);
           MOTOR_BASE_LEFT = 150;
           MOTOR_BASE_RIGHT = 150;
-          DriveStraight(1000);
-          FindTape(0, 1000);
-          while (analogRead(LEFT_LF_QRD) > ThreshTape.Value || analogRead(LEFT_LF_QRD) > ThreshTape.Value) {
+          DriveStraight(750);
+          FindTape(0, 500);
+          while (analogRead(LEFT_LF_QRD) > ThreshTape.Value || analogRead(RIGHT_LF_QRD) > ThreshTape.Value) {
             TapeFollow();
           }
-          DriveStraight(2000);
-          /*
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          delay(5000);
-          */
+          delay(2000);
+          //DriveStraight(1000);
+          DriveStraight(1200);
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          delay(2000);
           Pivot(1, 700);
-          /*
-          while (true) {
-            motor.stop(LEFT_MOTOR);
-            motor.stop(RIGHT_MOTOR);
+          while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH && analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_QRD) {
+            DriveStraight(1);
           }
-          */
-          MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value;
-          MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value;
+          MOTOR_BASE_LEFT = 115;
+          MOTOR_BASE_RIGHT = 115;
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           ClawRotate(-1);
+          delay(1000);
           statecontrol = State_Chewbacca;
         }
       } break;
