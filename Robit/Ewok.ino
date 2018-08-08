@@ -1,5 +1,5 @@
 boolean EwokDetected() {
-  if (analogRead(EWOK_DETECTOR) < 15) {
+  if (analogRead(EWOK_DETECTOR) < 10) {
     motor.stop(LEFT_MOTOR);
     motor.stop(RIGHT_MOTOR);
     return true;
@@ -95,10 +95,9 @@ void ChewbaccaDetect()
     LCD.print("CHEWIE DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
     ClawRotate(0);
-    while(true){
-      motor.stop(LEFT_MOTOR);
-      motor.stop(RIGHT_MOTOR);
-    }
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
     statecontrol = State_Zipline2;
+    delay(1000);
   }
 }

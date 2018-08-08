@@ -17,10 +17,10 @@ const byte RIGHT_EDGE_QRD = 3;
 const byte EWOK_DETECTOR = 4;
 const byte SCISSOR_BUMP = 4; // Digital 5
 const byte FRONT_BUMP = 5;
-const byte LEFT_US_TRIG = 8;
-const byte RIGHT_US_TRIG = 9;
-const byte LEFT_US_ECHO = 6;
-const byte RIGHT_US_ECHO = 7;
+const byte LEFT_US_TRIG = 9;
+const byte RIGHT_US_TRIG = 8;
+const byte LEFT_US_ECHO = 7;
+const byte RIGHT_US_ECHO = 6;
 uint16_t LEFT_EDGE_THRESH, RIGHT_EDGE_THRESH;
 uint16_t ONE_KHZ_THRESH = 50;
 uint16_t TEN_KHZ_THRESH = 200;
@@ -188,7 +188,8 @@ void loop()
         }
         MOTOR_BASE_LEFT = 95;
         MOTOR_BASE_RIGHT = 95;
-        statecontrol = State_SuspensionBridge;
+        //        statecontrol = State_Testing1;
+        statecontrol = State_Ewok1;
       }
     case State_Ewok1: {
         TapeFollow();
@@ -198,26 +199,26 @@ void loop()
         ReverseStraight(500);
         motor.stop(LEFT_MOTOR);
         motor.stop(RIGHT_MOTOR);
-        MOTOR_BASE_LEFT = 125;
-        MOTOR_BASE_RIGHT = 125;
+        MOTOR_BASE_LEFT = 150;
+        MOTOR_BASE_RIGHT = 150;
         delay(100);
         //Follow Right edge until left hits edge. Need this to align better for bridge and arch
-        while(analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH) {
-        	  while(analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_THRESH) {
-        	  		Pivot(1, 10);
-        	  }
-        	  DriveStraight(20);
-        	  while(analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH) {
-        	  		Pivot(0, 10);
-        	  }
-        	  DriveStraight(20);
+        while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH) {
+          while (analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_THRESH) {
+            Pivot(1, 10);
+          }
+          DriveStraight(30);
+          while (analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH) {
+            Pivot(0, 10);
+          }
+          DriveStraight(30);
         }
         MOTOR_BASE_LEFT = 115;
         MOTOR_BASE_RIGHT = 115;
         DriveStraight(100);
         motor.stop(LEFT_MOTOR);
         motor.stop(RIGHT_MOTOR);
-        
+
         statecontrol = State_EdgeAlign2;
 
         // boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
@@ -239,46 +240,46 @@ void loop()
         // }
       } break;
     case State_EdgeAlign2: {
-      delay(50);
-      ZeroTurn(0, 1400);
-      motor.stop(LEFT_MOTOR);
-      motor.stop(RIGHT_MOTOR);
-      timerbegin = millis();
-      while((analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH) && (millis() - timerbegin < 1000)) {
-        LCD.clear();
-        LCD.print("PIVOTING");
-        Pivot(0, 10);
-      }
-      motor.stop(LEFT_MOTOR);
-      motor.stop(RIGHT_MOTOR);
+        delay(50);
+        ZeroTurn(0, 1400);
+        motor.stop(LEFT_MOTOR);
+        motor.stop(RIGHT_MOTOR);
+        timerbegin = millis();
+        while ((analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH) && (millis() - timerbegin < 1000)) {
+          LCD.clear();
+          LCD.print("PIVOTING");
+          Pivot(0, 10);
+        }
+        motor.stop(LEFT_MOTOR);
+        motor.stop(RIGHT_MOTOR);
 
-      statecontrol = State_Bridge1Align;
-//      boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
-//      boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
-//      LCD.print(analogRead(LEFT_EDGE_QRD));
-//      LCD.print("/");
-//      LCD.print(analogRead(RIGHT_EDGE_QRD));
-//      if (left && right) {
-//        ReverseStraight(1);
-//      } else if (right) {
-//        PivotBack(0, 1);
-//      } else if (left) {
-//        PivotBack(1, 1);
-//      } else {
-//        //ReverseStraight(100);
-//        motor.stop(LEFT_MOTOR);
-//        motor.stop(RIGHT_MOTOR);
-//        delay(500);
-//        LCD.print("Edge Aligned");
-//        //ZeroTurn(0, 1000);
-//        ZeroTurn(0, 900);
-//        /*
-//          while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH) {
-//          ZeroTurn(0, 1);
-//          }
-//        */
-//        statecontrol = State_Bridge1Align;
-//      }
+        statecontrol = State_Bridge1Align;
+        //      boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
+        //      boolean right = analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH;
+        //      LCD.print(analogRead(LEFT_EDGE_QRD));
+        //      LCD.print("/");
+        //      LCD.print(analogRead(RIGHT_EDGE_QRD));
+        //      if (left && right) {
+        //        ReverseStraight(1);
+        //      } else if (right) {
+        //        PivotBack(0, 1);
+        //      } else if (left) {
+        //        PivotBack(1, 1);
+        //      } else {
+        //        //ReverseStraight(100);
+        //        motor.stop(LEFT_MOTOR);
+        //        motor.stop(RIGHT_MOTOR);
+        //        delay(500);
+        //        LCD.print("Edge Aligned");
+        //        //ZeroTurn(0, 1000);
+        //        ZeroTurn(0, 900);
+        //        /*
+        //          while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH) {
+        //          ZeroTurn(0, 1);
+        //          }
+        //        */
+        //        statecontrol = State_Bridge1Align;
+        //      }
       } break;
     case State_Bridge1Align: {
         boolean left = analogRead(LEFT_EDGE_QRD) > LEFT_EDGE_THRESH;
@@ -365,7 +366,7 @@ void loop()
           delay(1000);
           //Pivot(0, testtime1); //1500
           //ReverseStraight(testtime2); // 400
-          Pivot(0,1500);
+          Pivot(0, 1500);
           ReverseStraight(300);
           FindTape(0, 10000);
           motor.stop(LEFT_MOTOR);
@@ -522,13 +523,14 @@ void loop()
           DriveStraight(1300);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          delay(2000);
+          delay(1000);
           Pivot(1, 700);
           while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH && analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_QRD) {
             DriveStraight(1);
           }
           MOTOR_BASE_LEFT = 115;
           MOTOR_BASE_RIGHT = 115;
+          DriveStraight(500);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           ClawRotate(-1);
@@ -538,9 +540,9 @@ void loop()
       } break;
     case State_Ewok4: {
         timerbegin = millis();
-        while(millis() - timerbegin < 500) {
+        while (millis() - timerbegin < 1000) {
           Pivot(1, 10);
-          Ewok4Detect(); 
+          Ewok4Detect();
         }
         statecontrol = State_SuspensionBridge;
       } break;
@@ -549,9 +551,6 @@ void loop()
         LCD.clear();
         LCD.home();
         LCD.print("EdgeAvoiding");
-        motor.stop(LEFT_MOTOR);
-        motor.stop(RIGHT_MOTOR);
-        delay(1500);
         //Keep pinging the US until Zipline2 is detected above
         digitalWrite(RIGHT_US_TRIG, LOW);
         delayMicroseconds(2);
@@ -559,10 +558,6 @@ void loop()
         delayMicroseconds(10);
         digitalWrite(RIGHT_US_TRIG, LOW);
         uint16_t rightdist = pulseIn(RIGHT_US_ECHO, HIGH) * .034 / 2;
-        LCD.clear();
-        LCD.home();
-        LCD.print(rightdist);
-        delay(5000);
         if (rightdist < 30) {
           LCD.clear();
           LCD.home();
@@ -570,22 +565,43 @@ void loop()
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(2000);
-          ZeroTurn(0, 50);
+          ZeroTurn(0, 250);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
+          ClawRotate(-1);
+          LCD.clear();
+          LCD.home();
+          LCD.print("CHEWIE STATE");
           statecontrol = State_Chewbacca;
         }
-    }
+        delay(50);
+      } break;
     case State_Chewbacca: {
-        LCD.clear();
-        LCD.home();
-        LCD.print("CHEWIE STATE");
-        DriveStraight(50);
+        DriveStraight(100);
         ChewbaccaDetect();
       } break;
     case State_Zipline2: {
-        Zipline2Detect();
+        while (analogRead(SCISSOR_BUMP)) {
+          motor.speed(SCISSOR_MOTOR, 255);
+        }
+        motor.stop(SCISSOR_MOTOR);
+        ReverseStraight(1000);
+        motor.stop(LEFT_MOTOR);
+        motor.stop(RIGHT_MOTOR);
+        timerbegin = millis();
+        while (millis() - timerbegin < 4000) {
+          motor.speed(SCISSOR_MOTOR, -255);
+        }
+        delay(10000);
       } break;
+
+
+
+
+
+
+
+
     case State_Testing0: {
         LCD.print(analogRead(CLAW_POT));
         LCD.setCursor(0, 1);
