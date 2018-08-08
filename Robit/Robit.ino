@@ -1,3 +1,4 @@
+
 #include <phys253.h>
 #include <LiquidCrystal.h>
 #include <avr/EEPROM.h>
@@ -21,8 +22,8 @@ const byte RIGHT_US_TRIG = 8;
 const byte LEFT_US_ECHO = 7;
 const byte RIGHT_US_ECHO = 6;
 uint16_t LEFT_EDGE_THRESH, RIGHT_EDGE_THRESH;
-uint16_t ONE_KHZ_THRESH = 10;
-uint16_t TEN_KHZ_THRESH = 50;
+uint16_t ONE_KHZ_THRESH = 50;
+uint16_t TEN_KHZ_THRESH = 200;
 uint16_t CLAW_LEFT = 280;
 uint16_t CLAW_UP_LEFT = 615;
 uint16_t CLAW_UP_RIGHT = 675;
@@ -36,6 +37,7 @@ const byte BRIDGE2_SERVO_CLOSED = 2;
 uint8_t MOTOR_BASE_LEFT;
 uint8_t MOTOR_BASE_RIGHT;
 uint8_t CLAW_SPEED = 190;
+uint32_t FINDTAPETIME = 2000;
 volatile int32_t pos;
 uint16_t tenkhzread, onekhzread;
 int16_t leftSpeed, rightSpeed;
@@ -45,6 +47,7 @@ volatile uint32_t prevTime, nextencode, timer, timerbegin, offtapebegin, offtape
 uint32_t testtime0, testtime1, testtime2, testtime3, testtime4;
 enum RobotState
 {
+  State_Begin,
   State_Ewok1,
   State_EdgeAlign1,
   State_EdgeAlign2,
@@ -175,6 +178,15 @@ void loop()
   }
   switch (statecontrol)
   {
+    case State_Begin: {
+      timerbegin = millis();
+      while (millis() - timerbegin < 6750) {
+        TapeFollow();
+      }
+      MOTOR_BASE_LEFT = 100;
+      MOTOR_BASE_RIGHT = 100;
+      statecontrol = State_Ewok1;
+    }
     case State_Ewok1: {
         TapeFollow();
         Ewok1Detect();
@@ -273,7 +285,7 @@ void loop()
           motor.stop(RIGHT_MOTOR);
           delay(500);
           RCServo1.write(BRIDGE1_SERVO_OPEN);
-          delay(1000);
+          delay(1500);
           DriveStraight(500);
           FindTape(1, 10000);
           motor.stop(LEFT_MOTOR);
@@ -294,15 +306,16 @@ void loop()
             delay(500);
           */
           timerbegin = millis();
-          while (millis() - timerbegin < 2150) {
+          while (millis() - timerbegin < testtime0) {
+            //2400
             EdgeTapeFollow();
           }
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           RCServo1.write(BRIDGE1_SERVO_CLOSED);
           delay(1000);
-          Pivot(0, 500);
-          ReverseStraight(200);
+          Pivot(0, testtime1); //1500
+          ReverseStraight(testtime2); // 400
           FindTape(0, 2000);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
@@ -326,9 +339,12 @@ void loop()
         Ewok2Detect();
       } break;
     case State_Archway: {
+        FINDTAPETIME = 3000;
         MOTOR_BASE_LEFT = 100;
         MOTOR_BASE_RIGHT = 100;
         timerbegin = millis();
+        offtape = 0;
+        FindTape(1,500);
         while (millis() - timerbegin < 7000 || ((analogRead(LEFT_LF_QRD) < ThreshTape.Value && analogRead(RIGHT_LF_QRD) < ThreshTape.Value))) {
           TapeFollow();
         }
@@ -337,6 +353,7 @@ void loop()
         ClawRotate(-1);
         RCServo1.write(BRIDGE1_SERVO_OPEN);
         delay(500);
+        FINDTAPETIME = 2000;
         statecontrol = State_Ewok3;
       } break;
     case State_Ewok3: {
@@ -435,20 +452,32 @@ void loop()
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(500);
+          MOTOR_BASE_LEFT = 150;
+          MOTOR_BASE_RIGHT = 150;
           DriveStraight(1000);
-          FindTape(0,1000);
-          while(analogRead(LEFT_LF_QRD) > ThreshTape.Value || analogRead(LEFT_LF_QRD) > ThreshTape.Value){
+          FindTape(0, 1000);
+          while (analogRead(LEFT_LF_QRD) > ThreshTape.Value || analogRead(LEFT_LF_QRD) > ThreshTape.Value) {
             TapeFollow();
           }
+          DriveStraight(2000);
+          /*
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(5000);
-          Pivot(1,testtime0);
-          while(true){
+          */
+          Pivot(1, 700);
+          /*
+          while (true) {
             motor.stop(LEFT_MOTOR);
             motor.stop(RIGHT_MOTOR);
           }
-          statecontrol = State_Ewok4;
+          */
+          MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value;
+          MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value;
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          ClawRotate(-1);
+          statecontrol = State_Chewbacca;
         }
       } break;
     case State_Ewok4: {
@@ -456,7 +485,7 @@ void loop()
       } break;
     case State_Chewbacca: {
         EdgeAvoid();
-        //EwokDetect();
+        ChewbaccaDetect();
       } break;
     case State_Zipline2: {
         Zipline2Detect();
