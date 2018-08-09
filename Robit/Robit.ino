@@ -23,7 +23,7 @@ const byte LEFT_US_ECHO = 7;
 const byte RIGHT_US_ECHO = 6;
 uint16_t LEFT_EDGE_THRESH, RIGHT_EDGE_THRESH;
 uint16_t ONE_KHZ_THRESH = 50;
-uint16_t TEN_KHZ_THRESH = 200;
+uint16_t TEN_KHZ_THRESH = 500;
 uint16_t CLAW_LEFT = 290;
 uint16_t CLAW_UP_LEFT = 615;
 uint16_t CLAW_UP_RIGHT = 675;
@@ -186,8 +186,8 @@ void loop()
         while (millis() - timerbegin < 6750) {
           TapeFollow();
         }
-        MOTOR_BASE_LEFT = 95;
-        MOTOR_BASE_RIGHT = 95;
+        MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value - 25;
+        MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value - 25;
         //        statecontrol = State_Testing1;
         statecontrol = State_Ewok1;
       }
@@ -196,25 +196,22 @@ void loop()
         Ewok1Detect();
       } break;
     case State_EdgeAlign1: {
-        ReverseStraight(500);
+//        ReverseStraight(400);
         motor.stop(LEFT_MOTOR);
         motor.stop(RIGHT_MOTOR);
-        MOTOR_BASE_LEFT = 150;
-        MOTOR_BASE_RIGHT = 150;
         delay(100);
         //Follow Right edge until left hits edge. Need this to align better for bridge and arch
         while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH) {
-          while (analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_THRESH) {
-            Pivot(1, 10);
-          }
-          DriveStraight(30);
+
           while (analogRead(RIGHT_EDGE_QRD) > RIGHT_EDGE_THRESH) {
             Pivot(0, 10);
           }
           DriveStraight(30);
+          while (analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_THRESH) {
+            Pivot(1, 10);
+          }
+          DriveStraight(30);
         }
-        MOTOR_BASE_LEFT = 115;
-        MOTOR_BASE_RIGHT = 115;
         DriveStraight(100);
         motor.stop(LEFT_MOTOR);
         motor.stop(RIGHT_MOTOR);
@@ -241,7 +238,7 @@ void loop()
       } break;
     case State_EdgeAlign2: {
         delay(50);
-        ZeroTurn(0, 1400);
+        ZeroTurn(0,600);
         motor.stop(LEFT_MOTOR);
         motor.stop(RIGHT_MOTOR);
         timerbegin = millis();
@@ -335,10 +332,10 @@ void loop()
           motor.stop(RIGHT_MOTOR);
           //ClawRotate(1);
           timerbegin = millis();
-          while (millis() - timerbegin < 750) {
+          while (millis() - timerbegin < 500) {
             TapeFollow();
           }
-          DriveStraight(300);
+          DriveStraight(600);
           /*
             timerbegin = millis();
             while (millis() - timerbegin < 1000) {
@@ -349,7 +346,7 @@ void loop()
             delay(500);
           */
           timerbegin = millis();
-          while (millis() - timerbegin < 2000) {
+          while (millis() - timerbegin < 1500) {
             //2400
             EdgeTapeFollow();
           }
@@ -357,7 +354,7 @@ void loop()
             EdgeTapeFollow();
           }
           timerbegin = millis();
-          while (millis() - timerbegin < 200) {
+          while (millis() - timerbegin < 220) {
             EdgeTapeFollow();
           }
           motor.stop(LEFT_MOTOR);
@@ -366,8 +363,8 @@ void loop()
           delay(1000);
           //Pivot(0, testtime1); //1500
           //ReverseStraight(testtime2); // 400
-          Pivot(0, 1500);
-          ReverseStraight(300);
+          //Pivot(0, 1500);
+          //ReverseStraight(350);
           FindTape(0, 10000);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
@@ -392,11 +389,11 @@ void loop()
       } break;
     case State_Archway: {
         FINDTAPETIME = 3000;
-        MOTOR_BASE_LEFT = 100;
-        MOTOR_BASE_RIGHT = 100;
+        MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value - 10;
+        MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value - 10;
         timerbegin = millis();
         offtape = 0;
-        FindTape(1, 500);
+        FindTape(1,50);
         while (millis() - timerbegin < 7000 || ((analogRead(LEFT_LF_QRD) < ThreshTape.Value && analogRead(RIGHT_LF_QRD) < ThreshTape.Value))) {
           TapeFollow();
         }
@@ -406,8 +403,9 @@ void loop()
         RCServo1.write(BRIDGE1_SERVO_OPEN);
         delay(500);
         FINDTAPETIME = 2000;
-        MOTOR_BASE_LEFT = 115;
-        MOTOR_BASE_RIGHT = 115;
+        MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value;
+        MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value;
+        FindTape(0,50);
         statecontrol = State_Ewok3;
       } break;
     case State_Ewok3: {
@@ -509,8 +507,8 @@ void loop()
           RCServo1.write(BRIDGE1_SERVO_CLOSED);
           RCServo2.write(BRIDGE2_SERVO_CLOSED);
           delay(500);
-          MOTOR_BASE_LEFT = 150;
-          MOTOR_BASE_RIGHT = 150;
+          MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value + 25;
+          MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value + 25;
           DriveStraight(750);
           FindTape(0, 500);
           while (analogRead(LEFT_LF_QRD) > ThreshTape.Value || analogRead(RIGHT_LF_QRD) > ThreshTape.Value) {
@@ -518,24 +516,38 @@ void loop()
           }
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
-          delay(2000);
+          delay(500);
           //DriveStraight(1000);
-          DriveStraight(1300);
+          DriveStraight(1500);
+          while(analogRead(LEFT_EDGE_QRD)<LEFT_EDGE_THRESH || analogRead(RIGHT_EDGE_QRD)<RIGHT_EDGE_QRD){
+            DriveStraight(1);
+          }
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(1000);
+          ReverseStraight(500);
           Pivot(1, 700);
+          timerbegin = millis();
+          while(millis() - timerbegin < 3000){
+            EdgeAvoid();
+          }
+          /*
           while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH && analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_QRD) {
             DriveStraight(1);
           }
-          MOTOR_BASE_LEFT = 115;
-          MOTOR_BASE_RIGHT = 115;
+          MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value;
+          MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value;
           DriveStraight(500);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           ClawRotate(-1);
           delay(1000);
           statecontrol = State_Ewok4;
+          */
+          motor.stop(LEFT_MOTOR);
+          motor.stop(RIGHT_MOTOR);
+          ClawRotate(-1);
+          statecontrol = State_SuspensionBridge;
         }
       } break;
     case State_Ewok4: {
@@ -565,7 +577,7 @@ void loop()
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           delay(2000);
-          ZeroTurn(0, 250);
+          ZeroTurn(1, 100);
           motor.stop(LEFT_MOTOR);
           motor.stop(RIGHT_MOTOR);
           ClawRotate(-1);
@@ -585,7 +597,7 @@ void loop()
           motor.speed(SCISSOR_MOTOR, 255);
         }
         motor.stop(SCISSOR_MOTOR);
-        ReverseStraight(1000);
+        ReverseStraight(200);
         motor.stop(LEFT_MOTOR);
         motor.stop(RIGHT_MOTOR);
         timerbegin = millis();
@@ -594,12 +606,6 @@ void loop()
         }
         delay(10000);
       } break;
-
-
-
-
-
-
 
 
     case State_Testing0: {

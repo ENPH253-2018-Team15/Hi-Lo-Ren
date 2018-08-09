@@ -14,4 +14,3 @@ boolean ArchDetect()
       return false;
     }
 }
-

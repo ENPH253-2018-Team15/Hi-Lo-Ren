@@ -10,17 +10,17 @@ void EdgeFollow()
   if (!left && !right)
   {
     leftSpeed = MOTOR_BASE_LEFT;
-    rightSpeed = MOTOR_BASE_RIGHT * 2 / 4;
+    rightSpeed = MOTOR_BASE_RIGHT * 3 / 4;
   }
   else if (left && !right)
   {
-    leftSpeed = MOTOR_BASE_LEFT * 7 / 4;
-    rightSpeed = MOTOR_BASE_RIGHT * 1 / 4;
+    leftSpeed = MOTOR_BASE_LEFT * 5 / 4;
+    rightSpeed = MOTOR_BASE_RIGHT * 3 / 4;
   }
   else if (!left && right)
   {
-    leftSpeed = MOTOR_BASE_LEFT * 1 / 4;
-    rightSpeed = MOTOR_BASE_RIGHT * 7 / 4;
+    leftSpeed = MOTOR_BASE_LEFT * 3 / 4;
+    rightSpeed = MOTOR_BASE_RIGHT * 5 / 4;
   }
   else
   {

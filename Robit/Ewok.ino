@@ -13,8 +13,8 @@ void Ewok1Detect()
   if (EwokDetected()) {
     motor.stop(LEFT_MOTOR);
     motor.stop(RIGHT_MOTOR);
-    MOTOR_BASE_LEFT = 115;
-    MOTOR_BASE_RIGHT = 115;
+    MOTOR_BASE_LEFT = MotorBase.Value + LeftMotorOffset.Value;
+    MOTOR_BASE_RIGHT = MotorBase.Value + RightMotorOffset.Value;
     LCD.clear();
     LCD.print("EWOK 1 DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
@@ -65,6 +65,7 @@ void Ewok3Detect()
     RCServo0.write(CLAW_SERVO_CLOSED);
     delay(500);
     ClawRotate(0);
+    FindTape(0,500);
     while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH && analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_THRESH) {
       TapeFollow();
     }
@@ -95,9 +96,9 @@ void ChewbaccaDetect()
     LCD.print("CHEWIE DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
     ClawRotate(0);
-    motor.stop(LEFT_MOTOR);
-    motor.stop(RIGHT_MOTOR);
+    RCServo0.write(CLAW_SERVO_OPEN);
+    delay(1500);
+    ClawRotate(1);
     statecontrol = State_Zipline2;
-    delay(1000);
   }
 }
