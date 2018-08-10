@@ -69,9 +69,9 @@ void FindTape(boolean direction, uint32_t switchtime) {
       switched = 1;
     }
     if (direction) {
-      ZeroTurn(1, 1);
+      Pivot(1, 1);
     } else {
-      ZeroTurn(0, 1);
+      Pivot(0, 1);
     }
   }
 }

@@ -3,6 +3,7 @@ void IRBeacon()
 {
   motor.stop(LEFT_MOTOR);
   motor.stop(RIGHT_MOTOR);
+  delay(500);
   ///*
   //  timerbegin = millis();
   //

@@ -65,7 +65,7 @@ void Ewok3Detect()
     RCServo0.write(CLAW_SERVO_CLOSED);
     delay(500);
     ClawRotate(0);
-    FindTape(0,500);
+    FindTape(0, 500);
     while (analogRead(LEFT_EDGE_QRD) < LEFT_EDGE_THRESH && analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_THRESH) {
       TapeFollow();
     }
@@ -95,10 +95,20 @@ void ChewbaccaDetect()
     LCD.clear();
     LCD.print("CHEWIE DETECTED");
     RCServo0.write(CLAW_SERVO_CLOSED);
+    delay(500);
     ClawRotate(0);
     RCServo0.write(CLAW_SERVO_OPEN);
-    delay(1500);
-    ClawRotate(1);
+    delay(1000);
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+    ClawRotate(-1);
+    while (analogRead(RIGHT_EDGE_QRD) < RIGHT_EDGE_THRESH) {
+      Pivot(1, 1);
+    }
+    motor.stop(LEFT_MOTOR);
+    motor.stop(RIGHT_MOTOR);
+    RCServo1.write(BRIDGE1_SERVO_OPEN);
+    RCServo2.write(BRIDGE2_SERVO_OPEN);
     statecontrol = State_Zipline2;
   }
 }
