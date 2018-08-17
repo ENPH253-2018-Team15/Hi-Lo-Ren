@@ -177,12 +177,13 @@
       </a>
       <p>A few bridge prototypes we went through. We needed a design which would not slip when our robot would cross it, but also be easy to carry and deploy.</p>
     </div>
-    <a href="ClawProto.jpg">
+    <a href="FirstProto.jpg">
       <img src="FirstProto.jpg" alt="Our First Prototype" style="width:90%">
     </a>
     <p>Our first robot prototype, whom we dubbed <i><a href="http://starwars.wikia.com/wiki/Jek_Tono_Porkins">Porkins</a></i> for his rather heavy design. Though we changed a lot on the robot, its shape stayed nearly the same.</p>
   </div>
-  <div class="w3-half w3-card w3-white w3-center w3-padding-64">
+  <div class="w3-half w3-card w3-white w3-center">
+    <h2>Preliminary Sketches</h2>
     <a href="ProtoPage.jpg">
       <img src="ProtoPage.jpg" alt="Sketches" style="width:100%">
     </a>
@@ -223,7 +224,7 @@
       <h3>Chassis and Drive</h3>
       <img src="./CAD/chassis2.png" alt="Chassis" style="width:60%;min-height:300px;max-height:600px;" class="center">
       <div class="m4 w3-theme-l5 center80">
-        <p>Our drive system features a rear-wheel differential drive with two casters in the front. The motors for the drive system are encased in the "brain" of our robot and are powered by independent H-Bridge circuits. [ADD MORE HERE]</p>
+        <p>Our drive system features a rear-wheel differential drive with two casters in the front. The motors for the drive system are encased in the "brain" of our robot and are powered by independent H-Bridge circuits. Whereas most robots designed a box-shaped robot, our chassis has a wheelbase similar to that of the modern car.</p>
       </div>
     </div>
 
@@ -232,7 +233,7 @@
       <h3>The <b>Claw</b></h3>
       <img src="./CAD/claw2.png" alt="Claw" style="width:60%;min-height:300px;max-height:600px;" class="center">
       <div class="m5 w3-theme-l5 center80">
-        <p>The distinguishing feature of our robot (<i>"la pince de résistance" - Kevin</i>). While most designs aimed for two servo-controlled claw mounted on each side, our design includes a motor and potentiometer pair for precise 180 degree motion. The claw fingers hold a infrared emitter-detector pair to detect Ewoks within the claw's grasp. [ADD MORE HERE]</p>
+        <p>The distinguishing feature of our robot (<i>"la pince de résistance" - Kevin</i>). While most designs aimed for two servo-controlled claw mounted on each side, our design includes a motor and potentiometer pair for precise 180 degree motion of a single, rear-mounted claw. The claw fingers hold a infrared emitter-detector pair; when the beam of light is broken by an Ewok, the claw closes on it and lifts it into the basket.</p>
       </div>
     </div>
   </div>
@@ -245,7 +246,7 @@
       <h3>Storage and Return</h3>
       <img src="./CAD/basket.png" alt="Storage and Return" style="width:60%;min-height:300px;max-height:600px;" class="center">
       <div class="m5 w3-theme-l5 center80">
-        <p>To store the Ewoks throughout our journey, we constructed a sturdy hardboard basket, complete with a 3-D printed PLA hook. This hook allows the basket to be delivered to the start of the course via zipline. To raise the basket to the zipline, we built a simple mechanical scissor-lift. The linear motion created by the lead-screw/nut combination is translated into vertical motion by the single layer of scissor arms and is limited by a bump-switch. [ADD MORE HERE]</p>
+        <p>To store the Ewoks throughout our journey, we constructed a sturdy hardboard basket, complete with a 3-D printed PLA hook. This hook allows the basket to be delivered to the start of the course via zipline. To raise the basket to the zipline, we built a simple mechanical scissor-lift. The linear motion created by the lead-screw/nut combination is translated into vertical motion by the single layer of scissor arms and is limited by a bump-switch.</p>
       </div>
     </div>
 
@@ -254,7 +255,7 @@
       <h3>Gap Traversal</h3>
       <img src="./CAD/bridges.png" alt="Gap Traversal" style="width:60%;min-height:300px;max-height:600px;" class="center">
       <div class="m5 w3-theme-l5 center80">
-        <p>To cross the gaps, we built (after many, <i>many</i> prototypes) two bridges. The bridges were made from hardboard due to rigidity and ease to prototype with a laser cutter. The bridges were also filed down at the rear edge to allow for easy crossing. The stops on the bridges were placed to prevent the robot pushing the bridges into the gaps, and were placed to allow for less precision in robot position to land properly. [ADD HERE]</p>
+        <p>To cross the gaps, we built (after many, <i>many</i> prototypes) two bridges. The bridges were made from hardboard due to rigidity and ease to prototype with a laser cutter. The bridges were also filed down at the rear edge to allow for easy crossing. The stops on the bridges were placed to prevent the robot pushing the bridges into the gaps, and were placed to allow for less precision in robot position to land properly. Each is dropped by a small servo-controlled arm.</p>
       </div>
     </div>
   </div>
@@ -289,7 +290,7 @@
   <div class="w3-container" style="min-height:650px">
   <h3>Pitfalls</h3>
   <h4>Gravity</h4>
-    <p align="justify"><b>Hi-Lo Ren</b> could consistently traverse the course during testing, but inconsistency in dropping objects caused mishaps during competition. In the first round, our bridge bounced off the edge at an awkward angle and Hi-Lo Ren fell into the first gap, forcing us to reset our robot and leaving us out of time right as we were placing the basket on the zipline. In our second round, one Ewok was knocked out of the basket by the claw due to the way it fell into our basket (see the videos below).</p>
+    <p align="justify"><b>Hi-Lo Ren</b> could consistently traverse the course during testing, but inconsistency in dropping objects caused mishaps during competition. In the first round, our bridge bounced off the edge at an awkward angle and Hi-Lo Ren fell into the first gap, forcing us to reset our robot and leaving us out of time right as we were placing the basket on the zipline. In our second round, one Ewok was knocked out of the basket by the claw due to the way it fell into our basket (see the videos below). It is unlikely there is a solution to these issues; the placement of bridges and Ewoks in the basket are nearly random. That being said, although we did have issues with bridge-deploying during testing, we had never lost an Ewok during a run.</p>
   </div>
   </div>
 </div>
@@ -299,16 +300,11 @@
   <div class="w3-container" style="min-height:650px">
   <h3>Elimination</h3>
   <h4>Up in Smoke</h4>
-    <p align="justify">After progressing to the elimination stage, <b>Hi-Lo Ren</b> suddenly stopped in the middle of our run, and the soul-crushing sight of smoke emanated from within. It turned out that one of our H-Bridge circuits (used to power and control our motors) blew, likely due to a shorted connection. We had encountered this problem in the past, but the issue had not occcured since rebuilding all our connections and redesigning <b>Hi-Lo Ren</b>'s chassis to give us more room for wire organization a fortnight ago.</p>
+    <p align="justify">After progressing to the elimination stage, <b>Hi-Lo Ren</b>'s claw' suddenly stopped in the middle of our run, and the soul-crushing sight of smoke emanated from within. It turned out that one of our H-Bridge circuits (used to power and control our motors) blew, likely due to a shorted connection. We had encountered this problem in the past, but the issue had not occcured since rebuilding all our connections and redesigning <b>Hi-Lo Ren</b>'s chassis to give us more room for wire organization a fortnight ago. After hours of tuning and adjusting code, it was heartbreaking to see our robot fail because of a shorted circuit.</p>
   </div>
   </div>
-<div class="w3-white">
-  <h2>Next Time</h2>
-  <p>The biggest mistake of our development—the claw—would ...PLEASE ADD TO THIS</p>
-
 </div>
 </div>
-
 </div>
 <p></p>
 <!-- Post-Mortem Row -->
@@ -359,8 +355,16 @@
 </div>
 
 
+<div class="w3-white">
+  <h2 align="center">Next Time</h2>
+  <p>The biggest mistake of our development would be our coupling of systems together. Our initial claw design mounted directly on the rear of our robot, where our circuits are mounted. While iterating through claw designs, we spent hours debugging the H-Bridge circuits since we would inevitably bump a connection. Pairing this with the poor connection wires we made, hours that should have been spent testing were wasted trouble-shooting circuits. We also delayed the development of the claw in favor of developing a solid chassis. Seeing as the only way to score points was to pick up Ewoks, this was a brazen move, and one that led to many late nights redesigning.</p>
+  <p>Since we mounted the circuits on the top of the motors, when the motors blew, we had to redo all of the connections. This led to many more hours of debugging, and we ruined more than one electrical connection doing so.</p>
+  <p>In doing this again, we would make the circuits more accessible, and spend more time developing wiring paths and connections, as well as aim to make our robot more consistent, even at the cost of some points.</p>
+</div>
+
+
 <!-- Media Row -->
-<div class="w3-container w3-padding-64 w3-center" id="media">
+<div class="w3-container w3-padding-64 w3-center w3-theme-l5" id="media">
 <h2>Media Coverage</h2>
 
 <div class="w3-row-padding w3-center w3-padding-64" id="citybt">
